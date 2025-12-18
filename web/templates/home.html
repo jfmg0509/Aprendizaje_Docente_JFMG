@@ -1,0 +1,12 @@
+{{define "content"}}
+<h1>Sistema de Gestión de Libros</h1>
+<p class="muted">Front HTML + API REST (Gorilla Mux) + MySQL (Laragon).</p>
+
+<ul>
+  <li>Usuarios: crear/listar/actualizar/eliminar</li>
+  <li>Libros: crear/listar/buscar/detalle</li>
+  <li>Accesos: registrar APERTURA / LECTURA / DESCARGA</li>
+  <li>Estadísticas por libro (map[AccessType]int)</li>
+</ul>
+{{end}}
+{{template "layout" .}}

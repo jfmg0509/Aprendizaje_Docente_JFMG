@@ -1,0 +1,38 @@
+{{define "content"}}
+<h1>Libros</h1>
+
+<div class="grid">
+  <div class="card">
+    <h3>Crear libro</h3>
+    <form method="post" action="/ui/books">
+      <label>Título</label><input name="title" required />
+      <label>Autor</label><input name="author" required />
+      <label>Año</label><input name="year" type="number" required />
+      <label>ISBN</label><input name="isbn" required />
+      <label>Categoría</label><input name="category" required />
+      <label>Tags (separados por coma)</label><input name="tags" />
+      <label>Descripción</label><textarea name="description" rows="3"></textarea>
+      <button type="submit">Crear</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Listado</h3>
+    <table>
+      <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Año</th><th>ISBN</th></tr></thead>
+      <tbody>
+      {{range .Books}}
+        <tr>
+          <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
+          <td>{{.Title}}</td>
+          <td>{{.Author}}</td>
+          <td>{{.Year}}</td>
+          <td>{{.ISBN}}</td>
+        </tr>
+      {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
+{{template "layout" .}}
