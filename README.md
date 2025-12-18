@@ -1,8 +1,8 @@
 # Sistema de Gestión de Libros Electrónicos (POO en Go)
 
-**Autor / Grupo:** Juan Francisco Morán Gortaire (y equipo según corresponda)  
+**Autor / Grupo:** Juan Francisco Morán Gortaire 
 **Materia:** Programación Orientada a Objetos  
-**Fecha:** 18 de diciembre de 2025 (zona horaria America/Guayaquil)
+**Fecha:** 18 de diciembre de 2025
 
 Este repositorio implementa una **plataforma web** para **gestionar una biblioteca digital de libros técnicos**, con:
 - Gestión de usuarios y roles.
