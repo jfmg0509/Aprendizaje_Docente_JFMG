@@ -1,8 +1,11 @@
-{{define "home.html"}}
-  {{template "layout" .}}
+{{define "content"}}
+  <h1>Bienvenido a la Evaluación con el Docente</h1>
+
+  <div class="links-row">
+    <a href="/ui/users">Usuarios</a>
+    <a href="/ui/books">Libros</a>
+    <a href="/ui/books/search">Buscar</a>
+  </div>
 {{end}}
 
-{{define "content"}}
-<h1>Sistema de Gestión de Libros</h1>
-<p class="muted">Front HTML + API REST (Gorilla Mux) + MySQL (Laragon).</p>
-{{end}}
+{{template "layout" .}}
