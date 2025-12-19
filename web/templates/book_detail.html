@@ -1,27 +1,36 @@
-{{define "book_detail"}}
+{{define "book_detail.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
 <h1>Detalle del libro</h1>
 
 <div class="card">
-  <p><b>ID:</b> {{.Data.Book.ID}}</p>
-  <p><b>Título:</b> {{.Data.Book.Title}}</p>
-  <p><b>Autor:</b> {{.Data.Book.Author}}</p>
-  <p><b>Año:</b> {{.Data.Book.Year}}</p>
-  <p><b>ISBN:</b> {{.Data.Book.ISBN}}</p>
-  <p><b>Categoría:</b> {{.Data.Book.Category}}</p>
-  <p><b>Tags:</b> {{range .Data.Book.Tags}}{{.}} {{end}}</p>
-  <p><b>Descripción:</b> {{.Data.Book.Description}}</p>
+  <p><b>ID:</b> {{.Book.ID}}</p>
+  <p><b>Título:</b> {{.Book.Title}}</p>
+  <p><b>Autor:</b> {{.Book.Author}}</p>
+  <p><b>Año:</b> {{.Book.Year}}</p>
+  <p><b>ISBN:</b> {{.Book.ISBN}}</p>
+  <p><b>Categoría:</b> {{.Book.Category}}</p>
+  <p><b>Tags:</b> {{range .Book.Tags}}{{.}} {{end}}</p>
+  <p><b>Descripción:</b> {{.Book.Description}}</p>
 </div>
 
-<div class="grid" style="margin-top:16px">
+<div style="height:16px"></div>
+
+<div class="grid">
   <div class="card">
     <h3>Registrar acceso</h3>
     <form method="post" action="/ui/access">
-      <input type="hidden" name="book_id" value="{{.Data.Book.ID}}" />
-      <label>User ID</label><input name="user_id" type="number" required />
+      <input type="hidden" name="book_id" value="{{.Book.ID}}" />
+      <label>User ID</label>
+      <input name="user_id" type="number" required />
+
       <label>Tipo de acceso</label>
       <select name="access_type">
-        {{range .Data.AccessTypes}}<option value="{{.}}">{{.}}</option>{{end}}
+        {{range .AccessTypes}}<option value="{{.}}">{{.}}</option>{{end}}
       </select>
+
       <button type="submit">Registrar</button>
     </form>
     <p class="muted">Se registra en cola (canal) y se inserta asíncronamente.</p>
@@ -30,9 +39,9 @@
   <div class="card">
     <h3>Estadísticas</h3>
     <ul>
-      <li>APERTURA: {{index .Data.Stats "APERTURA"}}</li>
-      <li>LECTURA: {{index .Data.Stats "LECTURA"}}</li>
-      <li>DESCARGA: {{index .Data.Stats "DESCARGA"}}</li>
+      <li>APERTURA: {{index .Stats "APERTURA"}}</li>
+      <li>LECTURA: {{index .Stats "LECTURA"}}</li>
+      <li>DESCARGA: {{index .Stats "DESCARGA"}}</li>
     </ul>
   </div>
 </div>
