@@ -1,5 +1,12 @@
-{{define "error"}}
-<h2>Error</h2>
-<p>{{.Data.Error}}</p>
-<p><a href="/">Volver</a></p>
+{{define "error.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
+<h1>Error</h1>
+
+<div class="card">
+  <p>{{.Error}}</p>
+  <p><a href="/" style="color:#2D73D6;text-decoration:none;">Volver</a></p>
+</div>
 {{end}}
