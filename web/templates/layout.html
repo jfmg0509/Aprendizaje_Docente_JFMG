@@ -4,104 +4,92 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-
   <title>{{.Title}}</title>
-
   <style>
-    /* ===== Estilo general solicitado ===== */
     body{
       background:#FFFFFF;
-      font-family:"Calibri Light", Calibri, "Segoe UI", Arial, sans-serif;
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
+      font-family: Calibri, "Calibri Light", system-ui, Segoe UI, Roboto, Arial;
+      margin:24px;
+      max-width:1050px;
     }
 
-    /* Contenedor principal */
-    .wrap{
-      width: 100%;
-      max-width: 1050px;
-      margin: 0 auto;
-      padding: 36px 24px 24px 24px;
-      flex: 1;
-    }
-
-    /* Títulos */
-    h1{
-      color:#3686F5;
-      font-weight:700;           /* Calibri Light Bold (aprox) */
-      margin: 0 0 18px 0;
-      text-align:center;
-      font-size: 44px;
-    }
-
-    /* Links */
-    a{
+    /* NAV */
+    nav a{
+      margin-right:12px;
       color:#2D73D6;
       text-decoration:none;
-      font-weight:300;
+      font-weight:300; /* Calibri Light */
     }
-    a:hover{ text-decoration:underline; }
+    nav a:hover{ text-decoration:underline; }
 
-    /* Menú (para el resto de páginas) */
-    nav{
-      text-align:center;
-      margin-top: 10px;
-      margin-bottom: 22px;
-    }
-    nav a{ margin: 0 12px; }
-
-    /* Footer solicitado */
-    footer{
-      width:100%;
-      border-top:1px solid #eee;
-      padding: 14px 24px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      color:#2D73D6;            /* mismo color que links */
-      font-family:"Calibri Light", Calibri, "Segoe UI", Arial, sans-serif;
-      font-weight:300;
-      font-size:14px;
-      box-sizing:border-box;
+    /* TITULOS */
+    h1, h2{
+      color:#3686F5;
+      font-weight:700; /* Bold */
+      font-family: Calibri, "Calibri Light", system-ui, Segoe UI, Roboto, Arial;
     }
 
-    /* Helpers */
-    .center { text-align:center; }
-    .links-home { display:flex; gap:18px; justify-content:center; margin-top:18px; font-size:18px; }
-    .card{border:1px solid #e3e3e3;border-radius:10px;padding:12px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    /* TABLAS */
     table{border-collapse:collapse;width:100%}
     th,td{border:1px solid #ddd;padding:8px;text-align:left}
     th{background:#f5f5f5}
+
+    /* LAYOUT */
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .card{border:1px solid #e3e3e3;border-radius:10px;padding:12px}
     input,select,textarea{width:100%;padding:8px;margin:6px 0}
     button{padding:10px 14px}
     .muted{color:#666}
+
+    /* HOME */
+    .home{
+      min-height:75vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .home-title{
+      text-align:center;
+      margin-bottom:18px;
+    }
+    .home-links{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+      margin-bottom:40px;
+    }
+    .home-links a{
+      color:#2D73D6;
+      font-weight:300;
+      text-decoration:none;
+    }
+    .home-links a:hover{ text-decoration:underline; }
+
+    .home-footer{
+      position:fixed;
+      left:24px;
+      right:24px;
+      bottom:18px;
+      display:flex;
+      justify-content:space-between;
+      color:#2D73D6;
+      font-weight:300;
+    }
   </style>
 </head>
 <body>
+  <nav>
+    <a href="/">Inicio</a>
+    <a href="/ui/users">Usuarios</a>
+    <a href="/ui/books">Libros</a>
+    <a href="/ui/books/search">Buscar</a>
+    <span class="muted">| API: /api/*</span>
+  </nav>
+  <hr/>
 
-  <div class="wrap">
-    <!-- Menú general (si quieres ocultarlo en Inicio lo manejamos desde el template home) -->
-    {{/* Si .ShowNav es true, mostramos navegación */}}
-    {{if .ShowNav}}
-    <nav>
-      <a href="/">Inicio</a>
-      <a href="/ui/users">Usuarios</a>
-      <a href="/ui/books">Libros</a>
-      <a href="/ui/books/search">Buscar</a>
-    </nav>
-    {{end}}
-
-    <!-- AQUÍ se inserta la vista que toque (home/users/books/etc) -->
-    {{template .View .}}
-  </div>
-
-  <footer>
-    <div>{{.FooterLeft}}</div>
-    <div>{{.FooterRight}}</div>
-  </footer>
+  {{/* Aquí se renderiza la vista actual */}}
+  {{template .View .}}
 
 </body>
 </html>
