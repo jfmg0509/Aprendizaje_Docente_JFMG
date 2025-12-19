@@ -9,8 +9,7 @@ import (
 	"strings"       // Manipulación de cadenas (split/trim)
 	"time"          // Timeouts y fecha/hora
 
-	"github.com/gorilla/mux" // Router Gorilla Mux: variables en rutas, middlewares, etc.
-
+	"github.com/gorilla/mux"                                           // Router Gorilla Mux: variables en rutas, middlewares, etc.
 	"github.com/jfmg0509/sistema_libros_funcional_go/internal/domain"  // Dominio: Roles, AccessTypes, filtros, etc.
 	"github.com/jfmg0509/sistema_libros_funcional_go/internal/usecase" // Casos de uso: servicios de negocio
 )
@@ -43,10 +42,19 @@ func (h *Handlers) Health(w http.ResponseWriter, r *http.Request) {
 
 // UIHome renderiza la página principal (GET /).
 func (h *Handlers) UIHome(w http.ResponseWriter, r *http.Request) {
-	// Ejecuta el template "home.html" enviando variables al HTML.
-	_ = h.tpl.ExecuteTemplate(w, "home.html", map[string]any{
-		"Title": "Sistema de Libros",
+	// Calculamos la fecha de mañana
+	tomorrow := time.Now().
+		Add(24 * time.Hour).
+		Format("02/01/2006") // formato DD/MM/YYYY
+
+	// Enviamos datos al template
+	err := h.tpl.ExecuteTemplate(w, "home.html", map[string]any{
+		"Title":        "Inicio",
+		"TomorrowDate": tomorrow,
 	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // UIUsers maneja la pantalla de usuarios (GET lista / POST crea).
