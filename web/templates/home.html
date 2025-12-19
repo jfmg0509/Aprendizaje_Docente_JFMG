@@ -1,16 +1,15 @@
-{{define "home"}}
-<div class="home">
-  <h1 class="home-title">Bienvenido a la Evaluación con el Docente</h1>
+{{define "home.html"}}
+  {{template "layout.html" .}}
+{{end}}
 
-  <div class="home-links">
+{{define "content"}}
+<h1>Bienvenido a la Evaluación con el Docente</h1>
+
+<div class="center" style="margin-top:40px;">
+  <div style="display:flex; flex-direction:column; gap:14px; font-size:18px;">
     <a href="/ui/users">Página 2 (Usuarios)</a>
     <a href="/ui/books">Página 3 (Libros)</a>
     <a href="/ui/books/search">Página 4 (Buscar)</a>
-  </div>
-
-  <div class="home-footer">
-    <div class="home-left">Juan Francisco Morán Gortaire</div>
-    <div class="home-right">PROGRAMACION ORIENTADA A OBJETOS - {{.Tomorrow}}</div>
   </div>
 </div>
 {{end}}

@@ -1,4 +1,4 @@
-{{define "layout"}}
+{{define "layout.html"}}
 <!doctype html>
 <html lang="es">
 <head>
@@ -8,70 +8,117 @@
 
   <style>
     body{
+      margin:0;
       background:#FFFFFF;
       font-family: Calibri, "Calibri Light", Arial, sans-serif;
-      margin:0;
-      padding:0;
+      color:#000;
+    }
+
+    .page{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
     }
 
     .container{
-      max-width: 1050px;
+      width: 1050px;
+      max-width: calc(100% - 48px);
       margin: 0 auto;
-      padding: 40px 24px;
-      min-height: calc(100vh - 80px);
+      padding: 24px 0 80px 0; /* deja espacio para footer */
     }
 
-    .title{
+    /* Títulos */
+    h1{
+      margin: 16px 0 24px 0;
       color:#3686F5;
       font-weight:700; /* Calibri Light Bold */
-      font-size:48px;
-      margin: 0 0 24px 0;
-      text-align:center;
     }
 
+    /* Links */
     a{
       color:#2D73D6;
-      font-family: Calibri, "Calibri Light", Arial, sans-serif;
-      text-decoration: none;
+      text-decoration:none;
+      font-weight:300; /* Calibri Light */
     }
     a:hover{ text-decoration: underline; }
 
-    .home-links{
-      margin-top: 24px;
+    /* Layout helpers */
+    .center{
       display:flex;
-      gap:24px;
       justify-content:center;
-      font-size:18px;
+      align-items:center;
     }
 
-    .footer{
+    .card{
+      border:1px solid #e3e3e3;
+      border-radius:10px;
+      padding:12px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+    }
+
+    table{
+      border-collapse:collapse;
       width:100%;
+    }
+    th,td{
+      border:1px solid #ddd;
+      padding:8px;
+      text-align:left;
+    }
+    th{ background:#f5f5f5; }
+
+    input,select,textarea{
+      width:100%;
+      padding:8px;
+      margin:6px 0;
+      box-sizing:border-box;
+    }
+    button{ padding:10px 14px; }
+
+    .muted{ color:#666; }
+
+    /* Footer fijo */
+    .footer{
       position: fixed;
       left:0;
+      right:0;
       bottom:0;
-      padding: 12px 24px;
-      box-sizing:border-box;
+      background:#FFFFFF;
+      border-top:1px solid #eee;
+      padding: 12px 0;
+    }
+    .footer-inner{
+      width: 1050px;
+      max-width: calc(100% - 48px);
+      margin: 0 auto;
       display:flex;
       justify-content:space-between;
-      font-size:16px;
-      background:#FFFFFF;
-    }
-
-    .footer .left, .footer .right{
-      color:#2D73D6;
+      align-items:center;
       font-family: Calibri, "Calibri Light", Arial, sans-serif;
+      font-weight:300;
+      color:#2D73D6;
+      font-size: 14px;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    {{template "content" .}}
-  </div>
+  <div class="page">
+    <div class="container">
+      {{template "content" .}}
+    </div>
 
-  <div class="footer">
-    <div class="left">Juan Francisco Morán Gortaire</div>
-    <div class="right">PROGRAMACION ORIENTADA A OBJETOS - {{.Tomorrow}}</div>
+    <div class="footer">
+      <div class="footer-inner">
+        <div>Juan Francisco Morán Gortaire</div>
+        <div>PROGRAMACION ORIENTADA A OBJETOS {{if .Tomorrow}}- {{.Tomorrow}}{{end}}</div>
+      </div>
+    </div>
   </div>
 </body>
 </html>
