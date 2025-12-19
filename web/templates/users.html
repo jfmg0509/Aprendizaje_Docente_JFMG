@@ -1,4 +1,8 @@
-{{define "users"}}
+{{define "users.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
 <h1>Usuarios</h1>
 
 <div class="grid">
@@ -12,8 +16,8 @@
       <input name="email" required />
 
       <label>Rol</label>
-      <select name="role" required>
-        {{range .Data.Roles}}
+      <select name="role">
+        {{range .Roles}}
           <option value="{{.}}">{{.}}</option>
         {{end}}
       </select>
@@ -29,15 +33,15 @@
         <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Activo</th></tr>
       </thead>
       <tbody>
-        {{range .Data.Users}}
-          <tr>
-            <td>{{.ID}}</td>
-            <td>{{.Name}}</td>
-            <td>{{.Email}}</td>
-            <td>{{.Role}}</td>
-            <td>{{.Active}}</td>
-          </tr>
-        {{end}}
+      {{range .Users}}
+        <tr>
+          <td>{{.ID}}</td>
+          <td>{{.Name}}</td>
+          <td>{{.Email}}</td>
+          <td>{{.Role}}</td>
+          <td>{{.Active}}</td>
+        </tr>
+      {{end}}
       </tbody>
     </table>
   </div>
