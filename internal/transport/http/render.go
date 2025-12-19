@@ -1,38 +1,52 @@
 package http
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"path/filepath"
 )
 
-// Renderer carga layout + la página solicitada y luego ejecuta la página.
-// Esto evita el error: "no such template content".
+// Renderer se encarga de cargar y renderizar templates HTML.
+// Convención usada:
+// - layout.html define: {{define "layout"}} ... {{template "content" .}} ... {{end}}
+// - cada página define:
+//  1. {{define "NOMBRE_DE_LA_PAGINA"}} {{template "layout" .}} {{end}}
+//  2. {{define "content"}} ... contenido ... {{end}}
+//
+// Importante:
+//   - Render() NO ejecuta "layout" directamente, porque "layout" necesita que exista
+//     un template "content" ya definido. En su lugar, ejecuta el template de la página.
 type Renderer struct {
+	tpl *template.Template
 	dir string
 }
 
-func NewTemplateRenderer() (*Renderer, error) {
-	return &Renderer{dir: "web/templates"}, nil
-}
+// NewRenderer carga todos los templates *.html dentro del directorio indicado.
+// Ejemplo: NewRenderer("web/templates")
+func NewRenderer(templatesDir string) (*Renderer, error) {
+	pattern := filepath.Join(templatesDir, "*.html")
 
-// Render carga:
-// - web/templates/layout.html
-// - web/templates/<name>   (ej: home.html, users.html, books.html, etc)
-// y ejecuta el template principal <name>.
-func (r *Renderer) Render(w http.ResponseWriter, name string, data any) {
-	layoutPath := filepath.Join(r.dir, "layout.html")
-	pagePath := filepath.Join(r.dir, name)
-
-	tpl, err := template.New("base").ParseFiles(layoutPath, pagePath)
+	tpl, err := template.ParseGlob(pattern)
 	if err != nil {
-		http.Error(w, "template parse error: "+err.Error(), http.StatusInternalServerError)
-		return
+		return nil, fmt.Errorf("parse templates (%s): %w", pattern, err)
 	}
 
-	// Ejecuta el template principal: "home.html", "users.html", etc.
-	if err := tpl.ExecuteTemplate(w, name, data); err != nil {
-		http.Error(w, "template exec error: "+err.Error(), http.StatusInternalServerError)
+	return &Renderer{
+		tpl: tpl,
+		dir: templatesDir,
+	}, nil
+}
+
+// Render ejecuta un template por nombre (ej: "users.html", "home.html").
+// data es el map/struct que tú mandas desde los handlers.
+func (r *Renderer) Render(w http.ResponseWriter, name string, data any) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	// Ejecutamos el template de la página, NO el layout.
+	// Ese template de página debe llamar a {{template "layout" .}}
+	if err := r.tpl.ExecuteTemplate(w, name, data); err != nil {
+		http.Error(w, "template error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
