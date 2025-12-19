@@ -1,8 +1,10 @@
 package http
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -10,51 +12,273 @@ import (
 	"github.com/jfmg0509/sistema_libros_funcional_go/internal/usecase"
 )
 
-// UIHandler maneja las páginas HTML (no JSON)
-type UIHandler struct {
-	renderer *TemplateRenderer
-	users    *usecase.UserService
-	books    *usecase.BookService
+// Handler agrupa dependencias (servicios + renderer).
+type Handler struct {
+	users *usecase.UserService
+	books *usecase.BookService
+	r     *Renderer
 }
 
-// Constructor
-func NewUIHandler(
-	renderer *TemplateRenderer,
-	users *usecase.UserService,
-	books *usecase.BookService,
-) *UIHandler {
-	return &UIHandler{
-		renderer: renderer,
-		users:    users,
-		books:    books,
+// NewHandler crea el handler principal.
+func NewHandler(users *usecase.UserService, books *usecase.BookService, r *Renderer) *Handler {
+	return &Handler{users: users, books: books, r: r}
+}
+
+//
+// ==============================
+// API REST (JSON) - /api/*
+// ==============================
+//
+
+// ---------- USERS API ----------
+
+// POST /api/users
+func (h *Handler) apiCreateUser(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Name  string      `json:"name"`
+		Email string      `json:"email"`
+		Role  domain.Role `json:"role"`
 	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		writeErr(w, err)
+		return
+	}
+
+	u, err := h.users.Create(r.Context(), in.Name, in.Email, in.Role)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, userToDTO(u))
 }
 
-// -------------------- HOME --------------------
-func (h *UIHandler) Home(w http.ResponseWriter, r *http.Request) {
-	h.renderer.Render(w, "home.html", map[string]any{
+// GET /api/users
+func (h *Handler) apiListUsers(w http.ResponseWriter, r *http.Request) {
+	list, err := h.users.List(r.Context())
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, usersToDTO(list))
+}
+
+// GET /api/users/{id}
+func (h *Handler) apiGetUser(w http.ResponseWriter, r *http.Request) {
+	id := mustUint64(mux.Vars(r)["id"])
+	u, err := h.users.Get(r.Context(), id)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, userToDTO(u))
+}
+
+// PUT /api/users/{id}
+func (h *Handler) apiUpdateUser(w http.ResponseWriter, r *http.Request) {
+	id := mustUint64(mux.Vars(r)["id"])
+
+	// active como *bool para permitir “no enviar”
+	var in struct {
+		Name   string      `json:"name"`
+		Email  string      `json:"email"`
+		Role   domain.Role `json:"role"`
+		Active *bool       `json:"active"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		writeErr(w, err)
+		return
+	}
+
+	u, err := h.users.Update(r.Context(), id, in.Name, in.Email, in.Role, in.Active)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, userToDTO(u))
+}
+
+// DELETE /api/users/{id}
+func (h *Handler) apiDeleteUser(w http.ResponseWriter, r *http.Request) {
+	id := mustUint64(mux.Vars(r)["id"])
+	if err := h.users.Delete(r.Context(), id); err != nil {
+		writeErr(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// ---------- BOOKS API ----------
+
+// POST /api/books
+func (h *Handler) apiCreateBook(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Title       string   `json:"title"`
+		Author      string   `json:"author"`
+		Year        int      `json:"year"`
+		ISBN        string   `json:"isbn"`
+		Category    string   `json:"category"`
+		Tags        []string `json:"tags"`
+		Description string   `json:"description"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		writeErr(w, err)
+		return
+	}
+
+	b, err := h.books.Create(r.Context(), in.Title, in.Author, in.Year, in.ISBN, in.Category, in.Tags, in.Description)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, bookToDTO(b))
+}
+
+// GET /api/books
+func (h *Handler) apiListBooks(w http.ResponseWriter, r *http.Request) {
+	list, err := h.books.List(r.Context())
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, booksToDTO(list))
+}
+
+// GET /api/books/{id}
+func (h *Handler) apiGetBook(w http.ResponseWriter, r *http.Request) {
+	id := mustUint64(mux.Vars(r)["id"])
+	b, err := h.books.Get(r.Context(), id)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, bookToDTO(b))
+}
+
+// GET /api/books/search?q=...&author=...&category=...
+func (h *Handler) apiSearchBooks(w http.ResponseWriter, r *http.Request) {
+	f := domain.BookFilter{
+		Q:        r.URL.Query().Get("q"),
+		Author:   r.URL.Query().Get("author"),
+		Category: r.URL.Query().Get("category"),
+	}
+	list, err := h.books.Search(r.Context(), f)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, booksToDTO(list))
+}
+
+// PATCH /api/books/{id}
+func (h *Handler) apiUpdateBook(w http.ResponseWriter, r *http.Request) {
+	id := mustUint64(mux.Vars(r)["id"])
+
+	var in struct {
+		Title       *string   `json:"title"`
+		Author      *string   `json:"author"`
+		Year        *int      `json:"year"`
+		ISBN        *string   `json:"isbn"`
+		Category    *string   `json:"category"`
+		Tags        *[]string `json:"tags"`
+		Description *string   `json:"description"`
+		Active      *bool     `json:"active"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		writeErr(w, err)
+		return
+	}
+
+	out, err := h.books.Update(r.Context(), id, usecase.UpdateBookInput{
+		Title:       in.Title,
+		Author:      in.Author,
+		Year:        in.Year,
+		ISBN:        in.ISBN,
+		Category:    in.Category,
+		Tags:        in.Tags,
+		Description: in.Description,
+		Active:      in.Active,
+	})
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, bookToDTO(out))
+}
+
+// DELETE /api/books/{id}
+func (h *Handler) apiDeleteBook(w http.ResponseWriter, r *http.Request) {
+	id := mustUint64(mux.Vars(r)["id"])
+	if err := h.books.Delete(r.Context(), id); err != nil {
+		writeErr(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// ---------- ACCESS API ----------
+
+// POST /api/access
+func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		UserID     uint64            `json:"user_id"`
+		BookID     uint64            `json:"book_id"`
+		AccessType domain.AccessType `json:"access_type"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		writeErr(w, err)
+		return
+	}
+
+	if err := h.books.RecordAccess(r.Context(), in.UserID, in.BookID, in.AccessType); err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]any{"ok": true})
+}
+
+// GET /api/books/{id}/stats
+func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
+	bookID := mustUint64(mux.Vars(r)["id"])
+	stats, err := h.books.StatsByBook(r.Context(), bookID)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, stats)
+}
+
+//
+// ==============================
+// UI (HTML) - /ui/*
+// ==============================
+//
+
+// GET /
+func (h *Handler) uiHome(w http.ResponseWriter, r *http.Request) {
+	h.r.Render(w, "home.html", map[string]any{
 		"Title": "Inicio",
 	})
 }
 
-// -------------------- USERS --------------------
-func (h *UIHandler) UsersPage(w http.ResponseWriter, r *http.Request) {
+// GET /ui/users
+func (h *Handler) uiUsersGET(w http.ResponseWriter, r *http.Request) {
 	list, err := h.users.List(r.Context())
 	if err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
-	h.renderer.Render(w, "users.html", map[string]any{
+	h.r.Render(w, "users.html", map[string]any{
 		"Title": "Usuarios",
 		"Users": usersToDTO(list),
 		"Roles": domain.AllowedRoles,
 	})
 }
 
-func (h *UIHandler) UsersCreate(w http.ResponseWriter, r *http.Request) {
+// POST /ui/users
+func (h *Handler) uiUsersPOST(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
@@ -65,30 +289,31 @@ func (h *UIHandler) UsersCreate(w http.ResponseWriter, r *http.Request) {
 		domain.Role(r.FormValue("role")),
 	)
 	if err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
 	http.Redirect(w, r, "/ui/users", http.StatusSeeOther)
 }
 
-// -------------------- BOOKS --------------------
-func (h *UIHandler) BooksPage(w http.ResponseWriter, r *http.Request) {
+// GET /ui/books
+func (h *Handler) uiBooksGET(w http.ResponseWriter, r *http.Request) {
 	list, err := h.books.List(r.Context())
 	if err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
-	h.renderer.Render(w, "books.html", map[string]any{
+	h.r.Render(w, "books.html", map[string]any{
 		"Title": "Libros",
 		"Books": booksToDTO(list),
 	})
 }
 
-func (h *UIHandler) BooksCreate(w http.ResponseWriter, r *http.Request) {
+// POST /ui/books
+func (h *Handler) uiBooksPOST(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
@@ -106,34 +331,31 @@ func (h *UIHandler) BooksCreate(w http.ResponseWriter, r *http.Request) {
 		r.FormValue("description"),
 	)
 	if err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
 	http.Redirect(w, r, "/ui/books", http.StatusSeeOther)
 }
 
-// -------------------- SEARCH --------------------
-func (h *UIHandler) BookSearch(w http.ResponseWriter, r *http.Request) {
+// GET /ui/books/search
+func (h *Handler) uiBookSearchGET(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	author := r.URL.Query().Get("author")
 	category := r.URL.Query().Get("category")
 
-	list, err := h.books.Search(
-		r.Context(),
-		domain.BookFilter{
-			Q:        q,
-			Author:   author,
-			Category: category,
-		},
-	)
+	list, err := h.books.Search(r.Context(), domain.BookFilter{
+		Q:        q,
+		Author:   author,
+		Category: category,
+	})
 	if err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
-	h.renderer.Render(w, "book_search.html", map[string]any{
-		"Title":    "Buscar libros",
+	h.r.Render(w, "book_search.html", map[string]any{
+		"Title":    "Buscar",
 		"Books":    booksToDTO(list),
 		"Q":        q,
 		"Author":   author,
@@ -141,31 +363,78 @@ func (h *UIHandler) BookSearch(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// -------------------- BOOK DETAIL --------------------
-func (h *UIHandler) BookDetail(w http.ResponseWriter, r *http.Request) {
-	idStr := mux.Vars(r)["id"]
-	id, _ := strconv.ParseUint(idStr, 10, 64)
+// GET /ui/books/{id}
+func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
+	id := mustUint64(mux.Vars(r)["id"])
 
-	book, err := h.books.Get(r.Context(), id)
+	b, err := h.books.Get(r.Context(), id)
 	if err != nil {
-		h.renderError(w, err)
+		h.uiError(w, err)
 		return
 	}
 
+	// stats puede fallar si aún no hay accesos; no “rompemos” la vista por eso
 	stats, _ := h.books.StatsByBook(r.Context(), id)
 
-	h.renderer.Render(w, "book_detail.html", map[string]any{
+	h.r.Render(w, "book_detail.html", map[string]any{
 		"Title":       "Detalle del libro",
-		"Book":        bookToDTO(book),
+		"Book":        bookToDTO(b),
 		"Stats":       stats,
 		"AccessTypes": domain.AllowedAccessTypes,
 	})
 }
 
-// -------------------- ERROR --------------------
-func (h *UIHandler) renderError(w http.ResponseWriter, err error) {
-	h.renderer.Render(w, "error.html", map[string]any{
+// POST /ui/access
+func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		h.uiError(w, err)
+		return
+	}
+
+	userID, _ := strconv.ParseUint(r.FormValue("user_id"), 10, 64)
+	bookID, _ := strconv.ParseUint(r.FormValue("book_id"), 10, 64)
+	t := domain.AccessType(r.FormValue("access_type"))
+
+	if err := h.books.RecordAccess(r.Context(), userID, bookID, t); err != nil {
+		h.uiError(w, err)
+		return
+	}
+
+	// volver al detalle del libro
+	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
+}
+
+// Render de error HTML
+func (h *Handler) uiError(w http.ResponseWriter, err error) {
+	h.r.Render(w, "error.html", map[string]any{
 		"Title": "Error",
 		"Error": err.Error(),
 	})
+}
+
+//
+// ==============================
+// Helpers
+// ==============================
+//
+
+func mustUint64(s string) uint64 {
+	v, _ := strconv.ParseUint(s, 10, 64)
+	return v
+}
+
+func splitCSV(s string) []string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }

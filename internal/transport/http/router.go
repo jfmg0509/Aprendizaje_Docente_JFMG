@@ -6,57 +6,61 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// NewRouter arma el enrutador principal (UI + API) y devuelve el router listo.
-func NewRouter(ui *UIHandler, api *APIHandler) *mux.Router {
+// NewRouter arma todas las rutas (UI + API) y devuelve un http.Handler listo para usar.
+func NewRouter(h *Handler) http.Handler {
 	r := mux.NewRouter()
 
 	// =========================
-	// UI ROUTES (HTML)
+	// RUTAS BASE (UI)
 	// =========================
+	r.HandleFunc("/", h.uiHome).Methods(http.MethodGet)
 
-	//r.HandleFunc("/ui/access", ui.AccessCreate).Methods(http.MethodPost)
+	// UI - USERS
+	r.HandleFunc("/ui/users", h.uiUsersGET).Methods(http.MethodGet)
+	r.HandleFunc("/ui/users", h.uiUsersPOST).Methods(http.MethodPost)
 
-	r.HandleFunc("/", ui.Home).Methods(http.MethodGet)
+	// UI - BOOKS
+	r.HandleFunc("/ui/books", h.uiBooksGET).Methods(http.MethodGet)
+	r.HandleFunc("/ui/books", h.uiBooksPOST).Methods(http.MethodPost)
 
-	r.HandleFunc("/ui/users", ui.UsersPage).Methods(http.MethodGet)
-	r.HandleFunc("/ui/users", ui.UsersCreate).Methods(http.MethodPost)
+	// UI - SEARCH
+	r.HandleFunc("/ui/books/search", h.uiBookSearchGET).Methods(http.MethodGet)
 
-	r.HandleFunc("/ui/books", ui.BooksPage).Methods(http.MethodGet)
-	r.HandleFunc("/ui/books", ui.BooksCreate).Methods(http.MethodPost)
+	// UI - BOOK DETAIL
+	r.HandleFunc("/ui/books/{id:[0-9]+}", h.uiBookDetailGET).Methods(http.MethodGet)
 
-	r.HandleFunc("/ui/books/search", ui.BookSearch).Methods(http.MethodGet)
-	r.HandleFunc("/ui/books/{id:[0-9]+}", ui.BookDetail).Methods(http.MethodGet)
-
-	// Si ya tienes el handler de registrar accesos desde UI (POST /ui/access)
-	// (si todavía no lo tienes, comenta esta línea por ahora)
-	r.HandleFunc("/ui/access", ui.AccessCreate).Methods(http.MethodPost)
+	// UI - ACCESS (registrar acceso)
+	r.HandleFunc("/ui/access", h.uiAccessPOST).Methods(http.MethodPost)
 
 	// =========================
-	// API ROUTES (JSON /api/*)
+	// API REST (JSON)
 	// =========================
-	// Si todavía no tienes APIHandler, puedes pasar nil en main y comentar este bloque.
-	if api != nil {
-		apiRouter := r.PathPrefix("/api").Subrouter()
+	api := r.PathPrefix("/api").Subrouter()
 
-		// Users API
-		apiRouter.HandleFunc("/users", api.UsersList).Methods(http.MethodGet)
-		apiRouter.HandleFunc("/users", api.UsersCreate).Methods(http.MethodPost)
-		apiRouter.HandleFunc("/users/{id:[0-9]+}", api.UsersGet).Methods(http.MethodGet)
-		apiRouter.HandleFunc("/users/{id:[0-9]+}", api.UsersUpdate).Methods(http.MethodPut)
-		apiRouter.HandleFunc("/users/{id:[0-9]+}", api.UsersDelete).Methods(http.MethodDelete)
+	// API - USERS
+	api.HandleFunc("/users", h.apiCreateUser).Methods(http.MethodPost)
+	api.HandleFunc("/users", h.apiListUsers).Methods(http.MethodGet)
+	api.HandleFunc("/users/{id:[0-9]+}", h.apiGetUser).Methods(http.MethodGet)
+	api.HandleFunc("/users/{id:[0-9]+}", h.apiUpdateUser).Methods(http.MethodPut)
+	api.HandleFunc("/users/{id:[0-9]+}", h.apiDeleteUser).Methods(http.MethodDelete)
 
-		// Books API
-		apiRouter.HandleFunc("/books", api.BooksList).Methods(http.MethodGet)
-		apiRouter.HandleFunc("/books", api.BooksCreate).Methods(http.MethodPost)
-		apiRouter.HandleFunc("/books/{id:[0-9]+}", api.BooksGet).Methods(http.MethodGet)
-		apiRouter.HandleFunc("/books/{id:[0-9]+}", api.BooksUpdate).Methods(http.MethodPut)
-		apiRouter.HandleFunc("/books/{id:[0-9]+}", api.BooksDelete).Methods(http.MethodDelete)
-		apiRouter.HandleFunc("/books/search", api.BooksSearch).Methods(http.MethodGet)
+	// API - BOOKS
+	api.HandleFunc("/books", h.apiCreateBook).Methods(http.MethodPost)
+	api.HandleFunc("/books", h.apiListBooks).Methods(http.MethodGet)
+	api.HandleFunc("/books/search", h.apiSearchBooks).Methods(http.MethodGet)
+	api.HandleFunc("/books/{id:[0-9]+}", h.apiGetBook).Methods(http.MethodGet)
+	api.HandleFunc("/books/{id:[0-9]+}", h.apiUpdateBook).Methods(http.MethodPatch)
+	api.HandleFunc("/books/{id:[0-9]+}", h.apiDeleteBook).Methods(http.MethodDelete)
 
-		// Access API
-		apiRouter.HandleFunc("/access", api.AccessCreate).Methods(http.MethodPost)
-		apiRouter.HandleFunc("/books/{id:[0-9]+}/stats", api.BookStats).Methods(http.MethodGet)
-	}
+	// API - ACCESS
+	api.HandleFunc("/access", h.apiRecordAccess).Methods(http.MethodPost)
+	api.HandleFunc("/books/{id:[0-9]+}/stats", h.apiStatsByBook).Methods(http.MethodGet)
+
+	// Si quisieras un health simple:
+	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	}).Methods(http.MethodGet)
 
 	return r
 }
