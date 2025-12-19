@@ -3,24 +3,22 @@
 
 <form method="get" action="/ui/books/search" class="card">
   <label>Texto</label>
-  <input name="q" value="{{.Q}}" placeholder="título, autor, tags" />
+  <input name="q" value="{{.Data.Q}}" placeholder="título, autor, tags" />
 
   <label>Autor</label>
-  <input name="author" value="{{.Author}}" />
+  <input name="author" value="{{.Data.Author}}" />
 
   <label>Categoría</label>
-  <input name="category" value="{{.Category}}" />
+  <input name="category" value="{{.Data.Category}}" />
 
   <button type="submit">Buscar</button>
 </form>
 
 <h3>Resultados</h3>
 <table>
-  <thead>
-    <tr><th>ID</th><th>Título</th><th>Autor</th><th>Categoría</th></tr>
-  </thead>
+  <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Categoría</th></tr></thead>
   <tbody>
-    {{range .Books}}
+    {{range .Data.Books}}
       <tr>
         <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
         <td>{{.Title}}</td>

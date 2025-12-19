@@ -23,7 +23,7 @@
         <tr><th>ID</th><th>Título</th><th>Autor</th><th>Año</th><th>ISBN</th></tr>
       </thead>
       <tbody>
-        {{range .Books}}
+        {{range .Data.Books}}
           <tr>
             <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
             <td>{{.Title}}</td>
