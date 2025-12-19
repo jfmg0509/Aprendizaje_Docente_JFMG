@@ -5,91 +5,64 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>{{.Title}}</title>
+
   <style>
     body{
-      background:#FFFFFF;
-      font-family: Calibri, "Calibri Light", system-ui, Segoe UI, Roboto, Arial;
+      font-family: Calibri, system-ui, Segoe UI, Roboto, Arial;
       margin:24px;
       max-width:1050px;
+      background:#FFFFFF;
     }
 
-    /* NAV */
     nav a{
       margin-right:12px;
       color:#2D73D6;
       text-decoration:none;
-      font-weight:300; /* Calibri Light */
+      font-weight:300;
     }
-    nav a:hover{ text-decoration:underline; }
 
-    /* TITULOS */
-    h1, h2{
+    h1{
       color:#3686F5;
-      font-weight:700; /* Bold */
-      font-family: Calibri, "Calibri Light", system-ui, Segoe UI, Roboto, Arial;
+      font-weight:600;
     }
 
-    /* TABLAS */
     table{border-collapse:collapse;width:100%}
     th,td{border:1px solid #ddd;padding:8px;text-align:left}
     th{background:#f5f5f5}
 
-    /* LAYOUT */
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     .card{border:1px solid #e3e3e3;border-radius:10px;padding:12px}
     input,select,textarea{width:100%;padding:8px;margin:6px 0}
     button{padding:10px 14px}
     .muted{color:#666}
 
-    /* HOME */
-    .home{
-      min-height:75vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-    .home-title{
-      text-align:center;
-      margin-bottom:18px;
-    }
-    .home-links{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      align-items:center;
-      margin-bottom:40px;
-    }
-    .home-links a{
-      color:#2D73D6;
-      font-weight:300;
-      text-decoration:none;
-    }
-    .home-links a:hover{ text-decoration:underline; }
-
-    .home-footer{
-      position:fixed;
-      left:24px;
-      right:24px;
-      bottom:18px;
+    footer{
+      margin-top:40px;
       display:flex;
       justify-content:space-between;
       color:#2D73D6;
-      font-weight:300;
+      font-size:14px;
     }
   </style>
 </head>
+
 <body>
+
   <nav>
     <a href="/">Inicio</a>
     <a href="/ui/users">Usuarios</a>
     <a href="/ui/books">Libros</a>
     <a href="/ui/books/search">Buscar</a>
-    <span class="muted">| API: /api/*</span>
   </nav>
+
   <hr/>
 
-  {{/* Aquí se renderiza la vista actual */}}
-  {{template .View .}}
+  {{template "content" .}}
+
+  <footer>
+    <div>Juan Francisco Morán Gortaire</div>
+    <div>PROGRAMACIÓN ORIENTADA A OBJETOS · {{.Today}}</div>
+  </footer>
 
 </body>
 </html>
