@@ -1,31 +1,33 @@
-{{define "book_search"}}
+{{define "book_search.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
 <h1>Búsqueda de libros</h1>
 
 <form method="get" action="/ui/books/search" class="card">
-  <label>Texto</label>
-  <input name="q" value="{{.Data.Q}}" placeholder="título, autor, tags" />
-
-  <label>Autor</label>
-  <input name="author" value="{{.Data.Author}}" />
-
-  <label>Categoría</label>
-  <input name="category" value="{{.Data.Category}}" />
-
+  <label>Texto</label><input name="q" value="{{.Q}}" placeholder="título, autor, tags" />
+  <label>Autor</label><input name="author" value="{{.Author}}" />
+  <label>Categoría</label><input name="category" value="{{.Category}}" />
   <button type="submit">Buscar</button>
 </form>
 
-<h3>Resultados</h3>
-<table>
-  <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Categoría</th></tr></thead>
-  <tbody>
-    {{range .Data.Books}}
+<div style="height:16px"></div>
+
+<div class="card">
+  <h3>Resultados</h3>
+  <table>
+    <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Categoría</th></tr></thead>
+    <tbody>
+    {{range .Books}}
       <tr>
-        <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
+        <td><a href="/ui/books/{{.ID}}" style="color:#2D73D6;text-decoration:none;">{{.ID}}</a></td>
         <td>{{.Title}}</td>
         <td>{{.Author}}</td>
         <td>{{.Category}}</td>
       </tr>
     {{end}}
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>
 {{end}}
