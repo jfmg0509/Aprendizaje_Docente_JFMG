@@ -6,13 +6,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// NewRouter registra TODAS las rutas UI + API
 func NewRouter(h *Handler) http.Handler {
 	r := mux.NewRouter()
 
-	// =========================
-	// UI (HTML)
-	// =========================
+	// Middlewares (para que no queden "unused")
+	r.Use(requestIDMiddleware)
+	r.Use(loggingMiddleware)
+	r.Use(methodOverrideMiddleware)
+
+	// UI
 	r.HandleFunc("/", h.uiHome).Methods(http.MethodGet)
 
 	r.HandleFunc("/ui/users", h.uiUsersGET).Methods(http.MethodGet)
@@ -26,9 +28,7 @@ func NewRouter(h *Handler) http.Handler {
 
 	r.HandleFunc("/ui/access", h.uiAccessPOST).Methods(http.MethodPost)
 
-	// =========================
-	// API (JSON)
-	// =========================
+	// API
 	api := r.PathPrefix("/api").Subrouter()
 
 	api.HandleFunc("/users", h.apiCreateUser).Methods(http.MethodPost)

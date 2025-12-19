@@ -13,64 +13,45 @@ import (
 )
 
 func main() {
-	// =========================
-	// 1) Cargar Config
-	// =========================
+	// 1) Config
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("config: %v", err)
 	}
 
-	// =========================
-	// 2) Abrir DB (MySQL)
-	// =========================
+	// 2) DB
 	database, err := db.Open(cfg.DSN())
 	if err != nil {
 		log.Fatalf("db open: %v", err)
 	}
 	defer database.SQL.Close()
 
-	// =========================
-	// 3) Repositorios (MySQL)
-	// =========================
+	// 3) Repos
 	userRepo := db.NewMySQLUserRepo(database.SQL)
 	bookRepo := db.NewMySQLBookRepo(database.SQL)
 	accessRepo := db.NewMySQLAccessRepo(database.SQL)
 
-	// =========================
-	// 4) Cola de Accesos (goroutines + channel)
-	// =========================
+	// 4) Queue accesos
 	queue := usecase.NewAccessQueue(accessRepo, cfg.AccessQueueSize, cfg.AccessWorkers)
 	defer queue.Close()
 
-	// =========================
-	// 5) Servicios (Usecases)
-	// =========================
+	// 5) Services
 	userService := usecase.NewUserService(userRepo)
 	bookService := usecase.NewBookService(bookRepo, userRepo, accessRepo, queue)
 
-	// =========================
-	// 6) Renderer (HTML templates)
-	// =========================
-	// Tus templates están en: web/templates/*.html
-	renderer, err := apphttp.NewRenderer("web/templates")
+	// 6) Renderer
+	renderer, err := apphttp.NewRenderer()
 	if err != nil {
 		log.Fatalf("templates: %v", err)
 	}
 
-	// =========================
-	// 7) Handler único (API + UI)
-	// =========================
+	// 7) Handler
 	h := apphttp.NewHandler(userService, bookService, renderer)
 
-	// =========================
 	// 8) Router
-	// =========================
 	router := apphttp.NewRouter(h)
 
-	// =========================
-	// 9) HTTP Server
-	// =========================
+	// 9) Server
 	srv := &http.Server{
 		Addr:         cfg.Addr,
 		Handler:      router,

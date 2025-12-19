@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 
@@ -30,8 +29,6 @@ func NewHandler(users *usecase.UserService, books *usecase.BookService, r *Rende
 // API REST (JSON) - /api/*
 // ==============================
 //
-
-// ---------- USERS API ----------
 
 // POST /api/users
 func (h *Handler) apiCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +75,6 @@ func (h *Handler) apiGetUser(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
 
-	// active como *bool para permitir “no enviar”
 	var in struct {
 		Name   string      `json:"name"`
 		Email  string      `json:"email"`
@@ -107,8 +103,6 @@ func (h *Handler) apiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
-
-// ---------- BOOKS API ----------
 
 // POST /api/books
 func (h *Handler) apiCreateBook(w http.ResponseWriter, r *http.Request) {
@@ -216,8 +210,6 @@ func (h *Handler) apiDeleteBook(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ---------- ACCESS API ----------
-
 // POST /api/access
 func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
 	var in struct {
@@ -258,7 +250,6 @@ func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) uiHome(w http.ResponseWriter, r *http.Request) {
 	h.r.Render(w, "home.html", map[string]any{
 		"Title": "Inicio",
-		"Today": tomorrowDDMMYYYY(),
 	})
 }
 
@@ -272,7 +263,6 @@ func (h *Handler) uiUsersGET(w http.ResponseWriter, r *http.Request) {
 
 	h.r.Render(w, "users.html", map[string]any{
 		"Title": "Usuarios",
-		"Today": tomorrowDDMMYYYY(),
 		"Users": usersToDTO(list),
 		"Roles": domain.AllowedRoles,
 	})
@@ -309,7 +299,6 @@ func (h *Handler) uiBooksGET(w http.ResponseWriter, r *http.Request) {
 
 	h.r.Render(w, "books.html", map[string]any{
 		"Title": "Libros",
-		"Today": tomorrowDDMMYYYY(),
 		"Books": booksToDTO(list),
 	})
 }
@@ -360,7 +349,6 @@ func (h *Handler) uiBookSearchGET(w http.ResponseWriter, r *http.Request) {
 
 	h.r.Render(w, "book_search.html", map[string]any{
 		"Title":    "Buscar",
-		"Today":    tomorrowDDMMYYYY(),
 		"Books":    booksToDTO(list),
 		"Q":        q,
 		"Author":   author,
@@ -378,12 +366,10 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// stats puede fallar si aún no hay accesos; no “rompemos” la vista por eso
 	stats, _ := h.books.StatsByBook(r.Context(), id)
 
 	h.r.Render(w, "book_detail.html", map[string]any{
 		"Title":       "Detalle del libro",
-		"Today":       tomorrowDDMMYYYY(),
 		"Book":        bookToDTO(b),
 		"Stats":       stats,
 		"AccessTypes": domain.AllowedAccessTypes,
@@ -409,19 +395,16 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 
-// Render de error HTML
+// Render error HTML
 func (h *Handler) uiError(w http.ResponseWriter, err error) {
 	h.r.Render(w, "error.html", map[string]any{
 		"Title": "Error",
-		"Today": tomorrowDDMMYYYY(),
 		"Error": err.Error(),
 	})
 }
 
 //
-// ==============================
 // Helpers
-// ==============================
 //
 
 func mustUint64(s string) uint64 {
@@ -443,8 +426,4 @@ func splitCSV(s string) []string {
 		}
 	}
 	return out
-}
-
-func tomorrowDDMMYYYY() string {
-	return time.Now().Add(24 * time.Hour).Format("02/01/2006")
 }
