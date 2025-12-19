@@ -1,16 +1,27 @@
-{{define "users"}}
+{{define "users.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
 <h1>Usuarios</h1>
 
 <div class="grid">
   <div class="card">
     <h3>Crear usuario</h3>
     <form method="post" action="/ui/users">
-      <label>Nombre</label><input name="name" required />
-      <label>Email</label><input name="email" type="email" required />
+      <label>Nombre</label>
+      <input name="name" required />
+
+      <label>Email</label>
+      <input name="email" required />
+
       <label>Rol</label>
       <select name="role">
-        {{range .Roles}}<option value="{{.}}">{{.}}</option>{{end}}
+        {{range .Roles}}
+          <option value="{{.}}">{{.}}</option>
+        {{end}}
       </select>
+
       <button type="submit">Crear</button>
     </form>
   </div>
@@ -18,7 +29,9 @@
   <div class="card">
     <h3>Listado</h3>
     <table>
-      <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Activo</th></tr></thead>
+      <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Activo</th></tr>
+      </thead>
       <tbody>
       {{range .Users}}
         <tr>
@@ -31,8 +44,6 @@
       {{end}}
       </tbody>
     </table>
-    <p class="muted">Para actualizar/eliminar usa la API (PUT/DELETE) o extiende esta vista.</p>
   </div>
 </div>
 {{end}}
-{{template "layout" .}}

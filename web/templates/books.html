@@ -1,4 +1,8 @@
-{{define "books"}}
+{{define "books.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
 <h1>Libros</h1>
 
 <div class="grid">
@@ -10,7 +14,7 @@
       <label>Año</label><input name="year" type="number" required />
       <label>ISBN</label><input name="isbn" required />
       <label>Categoría</label><input name="category" required />
-      <label>Tags (separados por coma)</label><input name="tags" />
+      <label>Tags</label><input name="tags" />
       <label>Descripción</label><textarea name="description" rows="3"></textarea>
       <button type="submit">Crear</button>
     </form>
@@ -35,4 +39,3 @@
   </div>
 </div>
 {{end}}
-{{template "layout" .}}

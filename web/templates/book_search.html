@@ -1,4 +1,8 @@
-{{define "book_search"}}
+{{define "book_search.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
 <h1>Búsqueda de libros</h1>
 
 <form method="get" action="/ui/books/search" class="card">
@@ -23,4 +27,3 @@
   </tbody>
 </table>
 {{end}}
-{{template "layout" .}}

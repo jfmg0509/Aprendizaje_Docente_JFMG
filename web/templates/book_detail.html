@@ -1,4 +1,8 @@
-{{define "book_detail"}}
+{{define "book_detail.html"}}
+  {{template "layout" .}}
+{{end}}
+
+{{define "content"}}
 <h1>Detalle del libro</h1>
 
 <div class="card">
@@ -11,30 +15,4 @@
   <p><b>Tags:</b> {{range .Book.Tags}}{{.}} {{end}}</p>
   <p><b>Descripción:</b> {{.Book.Description}}</p>
 </div>
-
-<div class="grid" style="margin-top:16px">
-  <div class="card">
-    <h3>Registrar acceso</h3>
-    <form method="post" action="/ui/access">
-      <input type="hidden" name="book_id" value="{{.Book.ID}}" />
-      <label>User ID</label><input name="user_id" type="number" required />
-      <label>Tipo de acceso</label>
-      <select name="access_type">
-        {{range .AccessTypes}}<option value="{{.}}">{{.}}</option>{{end}}
-      </select>
-      <button type="submit">Registrar</button>
-    </form>
-    <p class="muted">Se registra en cola (canal) y se inserta asíncronamente.</p>
-  </div>
-
-  <div class="card">
-    <h3>Estadísticas</h3>
-    <ul>
-      <li>APERTURA: {{index .Stats "APERTURA"}}</li>
-      <li>LECTURA: {{index .Stats "LECTURA"}}</li>
-      <li>DESCARGA: {{index .Stats "DESCARGA"}}</li>
-    </ul>
-  </div>
-</div>
 {{end}}
-{{template "layout" .}}
