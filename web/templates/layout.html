@@ -1,4 +1,4 @@
-{{define "layout.html"}}
+{{define "layout"}}
 <!doctype html>
 <html lang="es">
 <head>
@@ -7,52 +7,62 @@
   <title>{{.Title}}</title>
 
   <style>
-    body{
-      margin:0;
-      background:#FFFFFF;
-      font-family: Calibri, "Calibri Light", Arial, sans-serif;
-      color:#000;
+    :root{
+      --bg:#FFFFFF;
+      --title:#3686F5;
+      --link:#2D73D6;
+      --text:#111827;
+      --muted:#6B7280;
+      --border:#E5E7EB;
     }
 
-    .page{
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family: Calibri, "Calibri Light", "Segoe UI", Arial, sans-serif;
+      margin:0;
       min-height:100vh;
       display:flex;
       flex-direction:column;
     }
 
-    .container{
-      width: 1050px;
-      max-width: calc(100% - 48px);
+    .wrap{
+      max-width: 1050px;
       margin: 0 auto;
-      padding: 24px 0 80px 0; /* deja espacio para footer */
+      padding: 32px 24px 16px 24px;
+      width:100%;
+      box-sizing:border-box;
+      flex:1;
     }
 
-    /* Títulos */
-    h1{
-      margin: 16px 0 24px 0;
-      color:#3686F5;
-      font-weight:700; /* Calibri Light Bold */
-    }
-
-    /* Links */
-    a{
-      color:#2D73D6;
-      text-decoration:none;
-      font-weight:300; /* Calibri Light */
-    }
-    a:hover{ text-decoration: underline; }
-
-    /* Layout helpers */
-    .center{
+    nav{
       display:flex;
-      justify-content:center;
+      gap:18px;
       align-items:center;
+      padding: 18px 0 10px 0;
+      border-bottom:1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    nav a{
+      color:var(--link);
+      text-decoration:none;
+      font-weight: 300; /* Calibri Light */
+    }
+    nav a:hover{ text-decoration:underline; }
+
+    h1{
+      margin: 0 0 18px 0;
+      color:var(--title);
+      font-weight: 700; /* “Light Bold” aproximado */
+      letter-spacing:0.2px;
     }
 
     .card{
-      border:1px solid #e3e3e3;
-      border-radius:10px;
-      padding:12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+      background:#fff;
     }
 
     .grid{
@@ -66,60 +76,103 @@
       width:100%;
     }
     th,td{
-      border:1px solid #ddd;
-      padding:8px;
+      border:1px solid var(--border);
+      padding:10px;
       text-align:left;
+      vertical-align:top;
     }
-    th{ background:#f5f5f5; }
+    th{
+      background:#F9FAFB;
+      font-weight:700;
+    }
 
+    label{ display:block; margin-top:10px; }
     input,select,textarea{
       width:100%;
-      padding:8px;
-      margin:6px 0;
+      padding:10px;
+      margin-top:6px;
       box-sizing:border-box;
+      border:1px solid var(--border);
+      border-radius:10px;
+      font-family: inherit;
+      font-size: 15px;
     }
-    button{ padding:10px 14px; }
 
-    .muted{ color:#666; }
-
-    /* Footer fijo */
-    .footer{
-      position: fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      background:#FFFFFF;
-      border-top:1px solid #eee;
-      padding: 12px 0;
+    button{
+      margin-top:12px;
+      padding:10px 14px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#fff;
+      cursor:pointer;
+      font-family: inherit;
     }
-    .footer-inner{
-      width: 1050px;
-      max-width: calc(100% - 48px);
-      margin: 0 auto;
+    button:hover{
+      border-color:#cbd5e1;
+    }
+
+    .muted{ color: var(--muted); }
+
+    /* Footer solicitado */
+    footer{
+      border-top:1px solid var(--border);
+      padding: 14px 24px;
       display:flex;
       justify-content:space-between;
       align-items:center;
-      font-family: Calibri, "Calibri Light", Arial, sans-serif;
+      max-width:1050px;
+      margin: 0 auto;
+      width:100%;
+      box-sizing:border-box;
+      color: var(--link);
+      font-weight: 300;
+    }
+
+    /* Home (centrado) */
+    .home-center{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height: 55vh;
+    }
+    .home-links{
+      display:flex;
+      gap:28px;
+      margin-top: 18px;
+      justify-content:center;
+    }
+    .home-links a{
+      color:var(--link);
+      text-decoration:none;
       font-weight:300;
-      color:#2D73D6;
-      font-size: 14px;
+      font-size: 18px;
+    }
+    .home-links a:hover{ text-decoration:underline; }
+
+    @media (max-width: 860px){
+      .grid{ grid-template-columns:1fr; }
+      .home-links{ flex-direction:column; gap:14px; align-items:center; }
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
-    <div class="container">
-      {{template "content" .}}
-    </div>
+  <div class="wrap">
+    <nav>
+      <a href="/">Inicio</a>
+      <a href="/ui/users">Usuarios</a>
+      <a href="/ui/books">Libros</a>
+      <a href="/ui/books/search">Buscar</a>
+      <span class="muted">| API: /api/*</span>
+    </nav>
 
-    <div class="footer">
-      <div class="footer-inner">
-        <div>Juan Francisco Morán Gortaire</div>
-        <div>PROGRAMACION ORIENTADA A OBJETOS {{if .Tomorrow}}- {{.Tomorrow}}{{end}}</div>
-      </div>
-    </div>
+    {{template "content" .}}
   </div>
+
+  <footer>
+    <div>Juan Francisco Morán Gortaire</div>
+    <div>PROGRAMACION ORIENTADA A OBJETOS - {{.Tomorrow}}</div>
+  </footer>
 </body>
 </html>
 {{end}}
