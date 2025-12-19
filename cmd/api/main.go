@@ -31,7 +31,7 @@ func main() {
 	bookRepo := db.NewMySQLBookRepo(database.SQL)
 	accessRepo := db.NewMySQLAccessRepo(database.SQL)
 
-	// 4) Queue accesos
+	// 4) Access Queue
 	queue := usecase.NewAccessQueue(accessRepo, cfg.AccessQueueSize, cfg.AccessWorkers)
 	defer queue.Close()
 
@@ -39,13 +39,13 @@ func main() {
 	userService := usecase.NewUserService(userRepo)
 	bookService := usecase.NewBookService(bookRepo, userRepo, accessRepo, queue)
 
-	// 6) Renderer
-	renderer, err := apphttp.NewRenderer()
+	// 6) Renderer (usa tu render.go)
+	renderer, err := apphttp.NewRenderer("web/templates")
 	if err != nil {
 		log.Fatalf("templates: %v", err)
 	}
 
-	// 7) Handler
+	// 7) Handler único (UI + API)
 	h := apphttp.NewHandler(userService, bookService, renderer)
 
 	// 8) Router
@@ -61,7 +61,5 @@ func main() {
 	}
 
 	log.Printf("listening on %s", cfg.Addr)
-	if err := srv.ListenAndServe(); err != nil {
-		log.Fatal(err)
-	}
+	log.Fatal(srv.ListenAndServe())
 }
