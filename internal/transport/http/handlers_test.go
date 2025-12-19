@@ -25,18 +25,14 @@ func TestAPICreateUser(t *testing.T) {
 	userSvc := usecase.NewUserService(ur)
 	bookSvc := usecase.NewBookService(br, ur, ar, q)
 
-	// Renderer “dummy” para tests:
-	// No renderizamos UI en este test, pero NewHandler lo requiere.
-	r := &Renderer{t: template.New("x")}
+	// Creamos un renderer “fake” SOLO para compilar (no renderiza en este test)
+	tpl := template.Must(template.New("x").Parse(`{{define "layout"}}{{template "content" .}}{{end}}{{define "content"}}ok{{end}}`))
+	renderer := &Renderer{tpl: tpl}
 
-	h := NewHandler(userSvc, bookSvc, r)
+	h := NewHandler(userSvc, bookSvc, renderer)
 	router := NewRouter(h)
 
-	body, _ := json.Marshal(map[string]any{
-		"name":  "Ana",
-		"email": "ana@example.com",
-		"role":  "ADMIN",
-	})
+	body, _ := json.Marshal(map[string]any{"name": "Ana", "email": "ana@example.com", "role": "ADMIN"})
 	req := httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewReader(body))
 	rec := httptest.NewRecorder()
 
@@ -68,7 +64,6 @@ func (r *memUserRepo) Create(ctx context.Context, u *domain.User) (uint64, error
 	}
 	id := r.next
 	r.next++
-
 	hu, _ := domain.HydrateUser(id, u.Name(), u.Email(), u.Role(), u.Active(), u.CreatedAt(), u.UpdatedAt())
 	r.byID[id] = hu
 	r.byEmail[u.Email()] = id
@@ -103,7 +98,9 @@ type memBookRepo struct{}
 
 func newMemBookRepo() *memBookRepo { return &memBookRepo{} }
 
-func (r *memBookRepo) Create(ctx context.Context, b *domain.Book) (uint64, error) { return 1, nil }
+func (r *memBookRepo) Create(ctx context.Context, b *domain.Book) (uint64, error) {
+	return 1, nil
+}
 func (r *memBookRepo) GetByID(ctx context.Context, id uint64) (*domain.Book, error) {
 	return nil, domain.ErrNotFound
 }
