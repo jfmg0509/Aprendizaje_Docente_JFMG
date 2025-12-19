@@ -5,29 +5,96 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>{{.Title}}</title>
+
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:24px;max-width:1050px}
-    nav a{margin-right:12px}
-    table{border-collapse:collapse;width:100%}
-    th,td{border:1px solid #ddd;padding:8px;text-align:left}
-    th{background:#f5f5f5}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .card{border:1px solid #e3e3e3;border-radius:10px;padding:12px}
-    input,select,textarea{width:100%;padding:8px;margin:6px 0}
-    button{padding:10px 14px}
-    .muted{color:#666}
+    /* ====== Base ====== */
+    :root{
+      --bg:#FFFFFF;
+      --title:#3686F5;
+      --link:#2D73D6;
+    }
+
+    html, body { height: 100%; }
+
+    body{
+      background: var(--bg);
+      margin: 0;
+      font-family: Calibri, "Calibri Light", "Segoe UI", Arial, sans-serif;
+      color:#111;
+    }
+
+    /* Layout general (para que el footer quede abajo) */
+    .page{
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container{
+      width: 100%;
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* ====== Links ====== */
+    a{
+      color: var(--link);
+      text-decoration: none;
+      font-family: Calibri, "Calibri Light", "Segoe UI", Arial, sans-serif;
+      font-weight: 300; /* Calibri Light */
+    }
+    a:hover{ text-decoration: underline; }
+
+    /* ====== Títulos ====== */
+    h1{
+      margin: 0 0 18px 0;
+      color: var(--title);
+      font-family: Calibri, "Calibri Light", "Segoe UI", Arial, sans-serif;
+      font-weight: 700; /* Bold */
+      letter-spacing: .2px;
+    }
+
+    /* ====== Footer ====== */
+    .footer{
+      border-top: 1px solid #e9e9e9;
+      padding: 14px 24px;
+    }
+    .footer-inner{
+      max-width: 1050px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--link);
+      font-family: Calibri, "Calibri Light", "Segoe UI", Arial, sans-serif;
+      font-weight: 300; /* Calibri Light */
+    }
+
+    /* Utilidad simple */
+    .links-row{
+      margin-top: 18px;
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
+
 <body>
-  <nav>
-    <a href="/">Inicio</a>
-    <a href="/ui/users">Usuarios</a>
-    <a href="/ui/books">Libros</a>
-    <a href="/ui/books/search">Buscar</a>
-    <span class="muted">| API: /api/*</span>
-  </nav>
-  <hr/>
-  {{template "content" .}}
+  <div class="page">
+    <main class="container">
+      {{block "content" .}}{{end}}
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>Juan Francisco Morán Gortaire</div>
+        <div>PROGRAMACION ORIENTADA A OBJETOS — {{.TomorrowDate}}</div>
+      </div>
+    </footer>
+  </div>
 </body>
 </html>
 {{end}}
