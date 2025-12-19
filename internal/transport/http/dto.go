@@ -92,3 +92,26 @@ func booksToDTO(list []*domain.Book) []BookDTO {
 	}
 	return out // devuelve DTOs listos para writeJSON
 }
+
+// -------------------- VIEW (HTML) DTO --------------------
+
+// ViewData es el DTO utilizado EXCLUSIVAMENTE para renderizar templates HTML.
+// NO se usa para JSON ni para la API REST.
+// Su propósito es pasar información desde el handler hacia el layout y las vistas.
+//
+// Flujo típico:
+//
+//	Handler → ViewData → layout.html → template específico (users, books, etc.)
+//
+// Ejemplo de uso:
+//
+//	render(w, "layout", ViewData{
+//	    Title:   "Usuarios",
+//	    Content: "users",     // nombre del template definido con {{define "users"}}
+//	    Data:    usersData,   // cualquier estructura (slice, struct, map, etc.)
+//	})
+type ViewData struct {
+	Title   string // Título de la página (<title> y encabezados)
+	Content string // Nombre del template a renderizar dentro del layout
+	Data    any    // Datos dinámicos que la vista necesita (flexible)
+}
