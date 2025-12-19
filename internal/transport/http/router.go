@@ -9,6 +9,11 @@ import (
 func NewRouter(h *Handler) http.Handler {
 	r := mux.NewRouter()
 
+	// ✅ MIDDLEWARES (para que no queden "unused")
+	r.Use(requestIDMiddleware)      // agrega X-Request-ID
+	r.Use(loggingMiddleware)        // log básico de cada request
+	r.Use(methodOverrideMiddleware) // permite _method=PUT/DELETE en forms (opcional)
+
 	// UI
 	r.HandleFunc("/", h.uiHome).Methods(http.MethodGet)
 
