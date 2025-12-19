@@ -7,197 +7,71 @@
   <title>{{.Title}}</title>
 
   <style>
-    :root{
-      --bg:#FFFFFF;
-      --title:#3686F5;
-      --link:#2D73D6;
-      --text:#111;
-      --muted:#666;
-      --border:#e6e6e6;
-    }
-
-    html, body{
-      height:100%;
-    }
-
     body{
+      background:#FFFFFF;
+      font-family: Calibri, "Calibri Light", Arial, sans-serif;
       margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family: Calibri, "Calibri Light", "Segoe UI", Roboto, Arial, sans-serif;
+      padding:0;
     }
 
-    /* Contenedor principal */
-    .page{
-      min-height:100%;
+    .container{
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      min-height: calc(100vh - 80px);
+    }
+
+    .title{
+      color:#3686F5;
+      font-weight:700; /* Calibri Light Bold */
+      font-size:48px;
+      margin: 0 0 24px 0;
+      text-align:center;
+    }
+
+    a{
+      color:#2D73D6;
+      font-family: Calibri, "Calibri Light", Arial, sans-serif;
+      text-decoration: none;
+    }
+    a:hover{ text-decoration: underline; }
+
+    .home-links{
+      margin-top: 24px;
       display:flex;
-      flex-direction:column;
+      gap:24px;
+      justify-content:center;
+      font-size:18px;
     }
 
-    /* Header con navegación */
-    header{
-      padding:24px 24px 12px 24px;
-      max-width:1050px;
+    .footer{
       width:100%;
-      margin:0 auto;
-    }
-
-    nav{
-      display:flex;
-      gap:16px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    nav a{
-      color:var(--link);
-      text-decoration:none;
-      font-family: Calibri, "Calibri Light", "Segoe UI", Roboto, Arial, sans-serif;
-      font-weight:300; /* light */
-      font-size:16px;
-    }
-
-    nav a:hover{
-      text-decoration:underline;
-    }
-
-    hr{
-      border:none;
-      border-top:1px solid var(--border);
-      margin:12px 0 0 0;
-    }
-
-    /* Área de contenido */
-    main{
-      flex:1;
-      padding:24px;
-      max-width:1050px;
-      width:100%;
-      margin:0 auto;
-    }
-
-    /* Títulos */
-    h1{
-      margin:0 0 16px 0;
-      color:var(--title);
-      font-family: Calibri, "Calibri Light", "Segoe UI", Roboto, Arial, sans-serif;
-      font-weight:700; /* bold */
-      font-size:42px;
-      letter-spacing:0.2px;
-    }
-
-    h2, h3{
-      font-family: Calibri, "Calibri Light", "Segoe UI", Roboto, Arial, sans-serif;
-      font-weight:700;
-      margin:0 0 10px 0;
-    }
-
-    /* Componentes reutilizables (por si tus páginas los usan) */
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-    }
-
-    .card{
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:14px;
-      background:#fff;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-      background:#fff;
-    }
-
-    th, td{
-      border:1px solid var(--border);
-      padding:8px;
-      text-align:left;
-      font-size:14px;
-    }
-
-    th{
-      background:#f5f7fb;
-      font-weight:700;
-    }
-
-    input, select, textarea{
-      width:100%;
-      padding:8px;
-      margin:6px 0;
-      border:1px solid var(--border);
-      border-radius:8px;
-      font-family: inherit;
-      font-size:14px;
-    }
-
-    button{
-      padding:10px 14px;
-      border:1px solid var(--border);
-      border-radius:10px;
-      background:#fff;
-      cursor:pointer;
-      font-family: inherit;
-      font-size:14px;
-    }
-
-    button:hover{
-      border-color:#cfd8ff;
-    }
-
-    .muted{
-      color:var(--muted);
-    }
-
-    /* Footer solicitado */
-    footer{
-      padding:14px 24px;
-      border-top:1px solid var(--border);
-      max-width:1050px;
-      width:100%;
-      margin:0 auto;
+      position: fixed;
+      left:0;
+      bottom:0;
+      padding: 12px 24px;
+      box-sizing:border-box;
       display:flex;
       justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      color:var(--link);
-      font-family: Calibri, "Calibri Light", "Segoe UI", Roboto, Arial, sans-serif;
-      font-weight:300; /* light */
-      font-size:14px;
+      font-size:16px;
+      background:#FFFFFF;
     }
 
-    /* Responsive */
-    @media (max-width: 900px){
-      .grid{ grid-template-columns:1fr; }
-      h1{ font-size:34px; }
-      footer{ flex-direction:column; align-items:flex-start; }
+    .footer .left, .footer .right{
+      color:#2D73D6;
+      font-family: Calibri, "Calibri Light", Arial, sans-serif;
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
-    <header>
-      <nav>
-        <a href="/">Inicio</a>
-        <a href="/ui/users">Usuarios</a>
-        <a href="/ui/books">Libros</a>
-        <a href="/ui/books/search">Buscar</a>
-      </nav>
-      <hr/>
-    </header>
+  <div class="container">
+    {{template "content" .}}
+  </div>
 
-    <main>
-      {{template "content" .}}
-    </main>
-
-    <footer>
-      <div>Juan Francisco Morán Gortaire</div>
-      <div>PROGRAMACION ORIENTADA A OBJETOS — {{tomorrow}}</div>
-    </footer>
+  <div class="footer">
+    <div class="left">Juan Francisco Morán Gortaire</div>
+    <div class="right">PROGRAMACION ORIENTADA A OBJETOS - {{.Tomorrow}}</div>
   </div>
 </body>
 </html>
