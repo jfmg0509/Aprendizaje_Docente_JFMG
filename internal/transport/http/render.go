@@ -6,30 +6,26 @@ import (
 	"path/filepath"
 )
 
-// TemplateRenderer se encarga de cargar y renderizar los templates HTML
-type TemplateRenderer struct {
-	templates *template.Template
+// Renderer carga templates HTML y renderiza páginas.
+type Renderer struct {
+	t *template.Template
 }
 
-// NewTemplateRenderer carga todos los archivos .html de web/templates
-func NewTemplateRenderer() (*TemplateRenderer, error) {
-	tpl, err := template.ParseGlob(filepath.Join("web", "templates", "*.html"))
+// NewRenderer carga todos los templates del folder web/templates.
+func NewRenderer(templatesDir string) (*Renderer, error) {
+	// Carga *.html
+	pattern := filepath.Join(templatesDir, "*.html")
+	t, err := template.ParseGlob(pattern)
 	if err != nil {
 		return nil, err
 	}
-
-	return &TemplateRenderer{
-		templates: tpl,
-	}, nil
+	return &Renderer{t: t}, nil
 }
 
-// Render renderiza un template específico usando layout + content
-func (r *TemplateRenderer) Render(w http.ResponseWriter, name string, data any) {
+// Render renderiza un template por nombre (ej: "users.html") con data.
+func (r *Renderer) Render(w http.ResponseWriter, name string, data any) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	// Ejecuta el template solicitado
-	err := r.templates.ExecuteTemplate(w, name, data)
-	if err != nil {
+	if err := r.t.ExecuteTemplate(w, name, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
