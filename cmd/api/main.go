@@ -50,27 +50,23 @@ func main() {
 	bookService := usecase.NewBookService(bookRepo, userRepo, accessRepo, queue)
 
 	// =========================
-	// 6) Template Renderer (HTML)
+	// 6) Renderer (HTML templates)
 	// =========================
-	renderer, err := apphttp.NewTemplateRenderer()
+	// Tus templates están en: web/templates/*.html
+	renderer, err := apphttp.NewRenderer("web/templates")
 	if err != nil {
 		log.Fatalf("templates: %v", err)
 	}
 
 	// =========================
-	// 7) Handlers
+	// 7) Handler único (API + UI)
 	// =========================
-	ui := apphttp.NewUIHandler(renderer, userService, bookService)
-
-	// Si tu APIHandler ya existe, úsalo.
-	// Si aún no lo tienes, pon api := (*apphttp.APIHandler)(nil)
-	api := apphttp.NewAPIHandler(userService, bookService) // <-- si no existe, comenta esta línea
-	// api := (*apphttp.APIHandler)(nil) // <-- descomenta esta línea si no tienes APIHandler
+	h := apphttp.NewHandler(userService, bookService, renderer)
 
 	// =========================
 	// 8) Router
 	// =========================
-	router := apphttp.NewRouter(ui, api)
+	router := apphttp.NewRouter(h)
 
 	// =========================
 	// 9) HTTP Server
