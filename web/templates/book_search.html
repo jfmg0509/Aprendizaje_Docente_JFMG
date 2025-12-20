@@ -1,9 +1,5 @@
-{{define "book_search.html"}}
-  {{template "layout" .}}
-{{end}}
-
-{{define "content"}}
-<h1>Búsqueda de libros</h1>
+{{define "book_search"}}
+<h1 class="page-title">Búsqueda</h1>
 
 <form method="get" action="/ui/books/search" class="card">
   <label>Texto</label><input name="q" value="{{.Q}}" placeholder="título, autor, tags" />
@@ -12,16 +8,14 @@
   <button type="submit">Buscar</button>
 </form>
 
-<div style="height:16px"></div>
-
-<div class="card">
+<div class="card" style="margin-top:18px">
   <h3>Resultados</h3>
   <table>
     <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Categoría</th></tr></thead>
     <tbody>
     {{range .Books}}
       <tr>
-        <td><a href="/ui/books/{{.ID}}" style="color:#2D73D6;text-decoration:none;">{{.ID}}</a></td>
+        <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
         <td>{{.Title}}</td>
         <td>{{.Author}}</td>
         <td>{{.Category}}</td>

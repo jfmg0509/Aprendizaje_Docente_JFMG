@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -13,16 +14,28 @@ import (
 )
 
 // Handler agrupa dependencias (servicios + renderer).
-// ESTE Handler incluye UI + API para que router.go lo use directo.
 type Handler struct {
 	users *usecase.UserService
 	books *usecase.BookService
 	r     *Renderer
 }
 
-// NewHandler crea el handler principal (UI + API).
+// NewHandler crea el handler principal.
 func NewHandler(users *usecase.UserService, books *usecase.BookService, r *Renderer) *Handler {
 	return &Handler{users: users, books: books, r: r}
+}
+
+// viewBase arma datos base para TODAS las páginas.
+func (h *Handler) viewBase(title string, content string, showNav bool) map[string]any {
+	tomorrow := time.Now().Add(24 * time.Hour).Format("02/01/2006")
+
+	return map[string]any{
+		"Title":       title,
+		"Content":     content, // nombre del template interno (home/users/...)
+		"ShowNav":     showNav,
+		"FooterLeft":  "Juan Francisco Morán Gortaire",
+		"FooterRight": "PROGRAMACION ORIENTADA A OBJETOS - " + tomorrow,
+	}
 }
 
 //
@@ -30,8 +43,6 @@ func NewHandler(users *usecase.UserService, books *usecase.BookService, r *Rende
 // API REST (JSON) - /api/*
 // ==============================
 //
-
-// ---------- USERS API ----------
 
 // POST /api/users
 func (h *Handler) apiCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +89,6 @@ func (h *Handler) apiGetUser(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
 
-	// Active como *bool para permitir "no enviar"
 	var in struct {
 		Name   string      `json:"name"`
 		Email  string      `json:"email"`
@@ -107,8 +117,6 @@ func (h *Handler) apiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
-
-// ---------- BOOKS API ----------
 
 // POST /api/books
 func (h *Handler) apiCreateBook(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +163,7 @@ func (h *Handler) apiGetBook(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, bookToDTO(b))
 }
 
-// GET /api/books/search?q=...&author=...&category=...
+// GET /api/books/search
 func (h *Handler) apiSearchBooks(w http.ResponseWriter, r *http.Request) {
 	f := domain.BookFilter{
 		Q:        r.URL.Query().Get("q"),
@@ -216,8 +224,6 @@ func (h *Handler) apiDeleteBook(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ---------- ACCESS API ----------
-
 // POST /api/access
 func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
 	var in struct {
@@ -256,9 +262,8 @@ func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 
 // GET /
 func (h *Handler) uiHome(w http.ResponseWriter, r *http.Request) {
-	h.r.Render(w, "home.html", map[string]any{
-		"Title": "Inicio",
-	})
+	data := h.viewBase("Inicio", "home", false) // home sin nav
+	h.r.Render(w, "layout.html", data)
 }
 
 // GET /ui/users
@@ -269,11 +274,11 @@ func (h *Handler) uiUsersGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.r.Render(w, "users.html", map[string]any{
-		"Title": "Usuarios",
-		"Users": usersToDTO(list),
-		"Roles": domain.AllowedRoles,
-	})
+	data := h.viewBase("Usuarios", "users", true)
+	data["Users"] = usersToDTO(list)
+	data["Roles"] = domain.AllowedRoles
+
+	h.r.Render(w, "layout.html", data)
 }
 
 // POST /ui/users
@@ -305,10 +310,10 @@ func (h *Handler) uiBooksGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.r.Render(w, "books.html", map[string]any{
-		"Title": "Libros",
-		"Books": booksToDTO(list),
-	})
+	data := h.viewBase("Libros", "books", true)
+	data["Books"] = booksToDTO(list)
+
+	h.r.Render(w, "layout.html", data)
 }
 
 // POST /ui/books
@@ -355,13 +360,13 @@ func (h *Handler) uiBookSearchGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.r.Render(w, "book_search.html", map[string]any{
-		"Title":    "Buscar",
-		"Books":    booksToDTO(list),
-		"Q":        q,
-		"Author":   author,
-		"Category": category,
-	})
+	data := h.viewBase("Buscar", "book_search", true)
+	data["Books"] = booksToDTO(list)
+	data["Q"] = q
+	data["Author"] = author
+	data["Category"] = category
+
+	h.r.Render(w, "layout.html", data)
 }
 
 // GET /ui/books/{id}
@@ -376,12 +381,12 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 
 	stats, _ := h.books.StatsByBook(r.Context(), id)
 
-	h.r.Render(w, "book_detail.html", map[string]any{
-		"Title":       "Detalle del libro",
-		"Book":        bookToDTO(b),
-		"Stats":       stats,
-		"AccessTypes": domain.AllowedAccessTypes,
-	})
+	data := h.viewBase("Detalle del libro", "book_detail", true)
+	data["Book"] = bookToDTO(b)
+	data["Stats"] = stats
+	data["AccessTypes"] = domain.AllowedAccessTypes
+
+	h.r.Render(w, "layout.html", data)
 }
 
 // POST /ui/access
@@ -403,12 +408,11 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 
-// Render de error HTML
+// uiError renderiza error en HTML con layout.
 func (h *Handler) uiError(w http.ResponseWriter, err error) {
-	h.r.Render(w, "error.html", map[string]any{
-		"Title": "Error",
-		"Error": err.Error(),
-	})
+	data := h.viewBase("Error", "error", true)
+	data["Error"] = err.Error()
+	h.r.Render(w, "layout.html", data)
 }
 
 //

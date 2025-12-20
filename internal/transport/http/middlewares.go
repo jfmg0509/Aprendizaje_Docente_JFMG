@@ -1,16 +1,18 @@
 package http
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
+// Middleware simple de RequestID (mínimo)
 func requestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Si luego quieres, aquí puedes generar un ID y ponerlo en header
-		// w.Header().Set("X-Request-Id", "...")
+		// No generamos UUID para no meter libs. Solo timestamp nano.
+		rid := time.Now().UnixNano()
+		w.Header().Set("X-Request-ID", fmtInt64(rid))
 		next.ServeHTTP(w, r)
 	})
 }
@@ -23,21 +25,22 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// methodOverrideMiddleware permite HTML forms con POST simular PUT/DELETE/PATCH usando:
-// - header: X-HTTP-Method-Override
-// - o query: ?_method=PUT
+// Permite “override” con ?_method=PUT (útil si luego haces forms)
 func methodOverrideMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			override := r.Header.Get("X-HTTP-Method-Override")
-			if override == "" {
-				override = r.URL.Query().Get("_method")
-			}
-			override = strings.ToUpper(strings.TrimSpace(override))
-			if override == http.MethodPut || override == http.MethodDelete || override == http.MethodPatch {
-				r.Method = override
+			m := r.URL.Query().Get("_method")
+			if m != "" {
+				r.Method = m
 			}
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func fmtInt64(v int64) string {
+	// sin strconv.FormatInt para mantenerlo simple, pero ok usar strconv:
+	// return strconv.FormatInt(v, 10)
+	// Aquí lo hacemos directo:
+	return fmt.Sprintf("%d", v)
 }

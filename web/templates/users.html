@@ -1,8 +1,4 @@
-{{define "users.html"}}
-  {{template "layout" .}}
-{{end}}
-
-{{define "content"}}
+{{define "users"}}
 <h1 class="page-title">Usuarios</h1>
 
 <div class="grid">
@@ -32,25 +28,18 @@
 
     <table>
       <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Rol</th>
-          <th>Activo</th>
-        </tr>
+        <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Activo</th></tr>
       </thead>
-
       <tbody>
-        {{range .Users}}
-          <tr>
-            <td>{{.ID}}</td>
-            <td>{{.Name}}</td>
-            <td>{{.Email}}</td>
-            <td>{{.Role}}</td>
-            <td>{{.Active}}</td>
-          </tr>
-        {{end}}
+      {{range .Users}}
+        <tr>
+          <td>{{.ID}}</td>
+          <td>{{.Name}}</td>
+          <td>{{.Email}}</td>
+          <td>{{.Role}}</td>
+          <td>{{.Active}}</td>
+        </tr>
+      {{end}}
       </tbody>
     </table>
   </div>

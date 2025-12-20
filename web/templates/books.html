@@ -1,13 +1,10 @@
-{{define "books.html"}}
-  {{template "layout" .}}
-{{end}}
-
-{{define "content"}}
-<h1>Libros</h1>
+{{define "books"}}
+<h1 class="page-title">Libros</h1>
 
 <div class="grid">
   <div class="card">
     <h3>Crear libro</h3>
+
     <form method="post" action="/ui/books">
       <label>Título</label><input name="title" required />
       <label>Autor</label><input name="author" required />
@@ -22,12 +19,13 @@
 
   <div class="card">
     <h3>Listado</h3>
+
     <table>
       <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Año</th><th>ISBN</th></tr></thead>
       <tbody>
       {{range .Books}}
         <tr>
-          <td><a href="/ui/books/{{.ID}}" style="color:#2D73D6;text-decoration:none;">{{.ID}}</a></td>
+          <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
           <td>{{.Title}}</td>
           <td>{{.Author}}</td>
           <td>{{.Year}}</td>

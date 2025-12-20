@@ -1,12 +1,7 @@
-{{define "error.html"}}
-  {{template "layout" .}}
-{{end}}
-
-{{define "content"}}
-<h1>Error</h1>
-
+{{define "error"}}
+<h1 class="page-title">Error</h1>
 <div class="card">
   <p>{{.Error}}</p>
-  <p><a href="/" style="color:#2D73D6;text-decoration:none;">Volver</a></p>
+  <p><a href="/">Volver</a></p>
 </div>
 {{end}}
