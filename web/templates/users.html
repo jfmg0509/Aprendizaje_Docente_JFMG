@@ -1,22 +1,19 @@
 {{define "users"}}
-<h1 class="page-title">Usuarios</h1>
+<h1>Usuarios</h1>
 
-<div class="grid">
-  <!-- ========================= -->
-  <!-- Crear usuario -->
-  <!-- ========================= -->
+<div class="grid-2">
   <div class="card">
-    <h3 class="section-title">Crear usuario</h3>
+    <h3>Crear usuario</h3>
 
-    <form method="post" action="/ui/users">
+    <form method="POST" action="/ui/users">
       <label>Nombre</label>
-      <input name="name" required />
+      <input name="name" placeholder="Ej: Juan Pérez" required />
 
       <label>Email</label>
-      <input name="email" required />
+      <input name="email" type="email" placeholder="Ej: juan@mail.com" required />
 
       <label>Rol</label>
-      <select name="role">
+      <select name="role" required>
         {{range .Roles}}
           <option value="{{.}}">{{.}}</option>
         {{end}}
@@ -26,38 +23,33 @@
     </form>
   </div>
 
-  <!-- ========================= -->
-  <!-- Listado -->
-  <!-- ========================= -->
   <div class="card">
-    <h3 class="section-title">Listado</h3>
+    <h3>Listado</h3>
 
-    {{if .Users}}
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Activo</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{range .Users}}
-            <tr>
-              <td>{{.ID}}</td>
-              <td>{{.Name}}</td>
-              <td>{{.Email}}</td>
-              <td>{{.Role}}</td>
-              <td>{{if .Active}}Sí{{else}}No{{end}}</td>
-            </tr>
-          {{end}}
-        </tbody>
-      </table>
-    {{else}}
-      <p class="muted">Aún no hay usuarios registrados.</p>
-    {{end}}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Activo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Users}}
+        <tr>
+          <td>{{.ID}}</td>
+          <td>{{.Name}}</td>
+          <td>{{.Email}}</td>
+          <td>{{.Role}}</td>
+          <td>{{if .Active}}Sí{{else}}No{{end}}</td>
+        </tr>
+        {{else}}
+        <tr><td colspan="5" class="hint">No hay usuarios todavía.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
   </div>
 </div>
 {{end}}

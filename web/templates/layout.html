@@ -1,4 +1,4 @@
-{{define "layout"}}
+{{define "layout.html"}}
 <!doctype html>
 <html lang="es">
 <head>
@@ -13,7 +13,9 @@
       --link:#2D73D6;
       --border:#E6EAF2;
       --muted:#6B7280;
+      --card:#FFFFFF;
     }
+
     html,body{height:100%;}
     body{
       margin:0;
@@ -22,21 +24,7 @@
       color:#111827;
     }
 
-    .page{
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-    }
-    .container{
-      width:100%;
-      max-width:1050px;
-      margin:0 auto;
-      padding:24px;
-      box-sizing:border-box;
-      flex:1;
-      display:flex;
-      flex-direction:column;
-    }
+    .page{ min-height:100vh; display:flex; flex-direction:column; }
 
     nav{
       padding:16px 24px;
@@ -63,13 +51,18 @@
       margin-left:6px;
     }
 
-    main{
+    .container{
+      width:100%;
+      max-width:1050px;
+      margin:0 auto;
+      padding:24px;
+      box-sizing:border-box;
       flex:1;
       display:flex;
       flex-direction:column;
-      justify-content:flex-start;
-      padding-top:24px;
     }
+
+    main{ flex:1; padding-top:24px; }
 
     h1{
       margin:0 0 18px 0;
@@ -79,48 +72,64 @@
       letter-spacing:0.2px;
     }
 
-    .card{
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:18px;
-      background:#fff;
-    }
-    .grid2{
+    .grid-2{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:18px;
     }
-    .field{ margin:10px 0; }
+    @media (max-width: 900px){
+      .grid-2{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:18px;
+    }
+
+    label{ display:block; margin:12px 0 6px; color:#111827; font-weight:600; }
     input, select, textarea{
       width:100%;
-      padding:10px;
-      border:1px solid var(--border);
-      border-radius:10px;
       box-sizing:border-box;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      outline:none;
       font-family: inherit;
-      font-size: 15px;
+      font-size:16px;
+      background:#fff;
     }
+    textarea{ min-height:90px; resize:vertical; }
+
     button{
-      padding:10px 16px;
+      margin-top:12px;
+      padding:10px 14px;
       border:1px solid var(--border);
       border-radius:12px;
       background:#fff;
       cursor:pointer;
+      font-family: inherit;
+      font-size:16px;
     }
-    button:hover{ border-color:#C8D2EA; }
 
     table{
       width:100%;
       border-collapse:collapse;
       margin-top:10px;
+      font-size:16px;
     }
     th, td{
-      border-bottom:1px solid var(--border);
+      border:1px solid var(--border);
       padding:10px;
       text-align:left;
-      font-weight:300;
     }
-    th{ font-weight:600; }
+    th{ background:#F8FAFF; }
+
+    a.link{ color:var(--link); text-decoration:none; }
+    a.link:hover{ text-decoration:underline; }
+
+    .hint{ color:var(--muted); font-weight:300; margin-top:10px; }
 
     footer{
       border-top:1px solid var(--border);
@@ -158,6 +167,7 @@
 
 <body>
   <div class="page">
+
     {{if .ShowNav}}
     <nav>
       <div class="nav-inner">
@@ -172,7 +182,7 @@
 
     <div class="container">
       <main>
-        {{template "content" .}}
+        {{template .Content .}}
       </main>
     </div>
 
@@ -182,6 +192,7 @@
         <div>{{.FooterRight}}</div>
       </div>
     </footer>
+
   </div>
 </body>
 </html>

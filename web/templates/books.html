@@ -1,12 +1,11 @@
 {{define "books"}}
 <h1>Libros</h1>
 
-<div class="grid">
-  <!-- Crear libro -->
+<div class="grid-2">
   <div class="card">
     <h3>Crear libro</h3>
 
-    <form method="post" action="/ui/books">
+    <form method="POST" action="/ui/books">
       <label>Título</label>
       <input name="title" required />
 
@@ -14,29 +13,27 @@
       <input name="author" required />
 
       <label>Año</label>
-      <input name="year" type="number" required />
+      <input name="year" type="number" placeholder="Ej: 2024" required />
 
       <label>ISBN</label>
       <input name="isbn" required />
 
       <label>Categoría</label>
-      <input name="category" required />
+      <input name="category" />
 
-      <label>Tags (coma)</label>
-      <input name="tags" />
+      <label>Tags (separados por coma)</label>
+      <input name="tags" placeholder="ej: go, backend, programación" />
 
       <label>Descripción</label>
-      <textarea name="description" rows="3"></textarea>
+      <textarea name="description" placeholder="Breve descripción..."></textarea>
 
       <button type="submit">Crear</button>
     </form>
   </div>
 
-  <!-- Listado -->
   <div class="card">
     <h3>Listado</h3>
 
-    {{if .Books}}
     <table>
       <thead>
         <tr>
@@ -44,22 +41,23 @@
           <th>Título</th>
           <th>Autor</th>
           <th>Año</th>
+          <th>Ver</th>
         </tr>
       </thead>
       <tbody>
         {{range .Books}}
         <tr>
-          <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
+          <td>{{.ID}}</td>
           <td>{{.Title}}</td>
           <td>{{.Author}}</td>
           <td>{{.Year}}</td>
+          <td><a class="link" href="/ui/books/{{.ID}}">Detalle</a></td>
         </tr>
+        {{else}}
+        <tr><td colspan="5" class="hint">No hay libros todavía.</td></tr>
         {{end}}
       </tbody>
     </table>
-    {{else}}
-      <p class="muted">No hay libros registrados.</p>
-    {{end}}
   </div>
 </div>
 {{end}}

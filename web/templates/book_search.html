@@ -1,43 +1,53 @@
 {{define "book_search"}}
-<h1>Búsqueda de libros</h1>
+<h1>Buscar</h1>
 
-<form method="get" action="/ui/books/search" class="card">
-  <label>Texto</label>
-  <input name="q" value="{{.Q}}" placeholder="título, autor, tags" />
+<div class="card">
+  <h3>Filtros</h3>
+  <form method="GET" action="/ui/books/search">
+    <div class="grid-2">
+      <div>
+        <label>Texto</label>
+        <input name="q" value="{{.Q}}" placeholder="Título, ISBN, etc." />
+      </div>
+      <div>
+        <label>Autor</label>
+        <input name="author" value="{{.Author}}" placeholder="Ej: Stephen King" />
+      </div>
+    </div>
 
-  <label>Autor</label>
-  <input name="author" value="{{.Author}}" />
+    <label>Categoría</label>
+    <input name="category" value="{{.Category}}" placeholder="Ej: Programación" />
 
-  <label>Categoría</label>
-  <input name="category" value="{{.Category}}" />
+    <button type="submit">Buscar</button>
+  </form>
+</div>
 
-  <button type="submit">Buscar</button>
-</form>
+<div class="card" style="margin-top:18px;">
+  <h3>Resultados</h3>
 
-<h3 style="margin-top:24px">Resultados</h3>
-
-{{if .Books}}
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Título</th>
-      <th>Autor</th>
-      <th>Categoría</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{range .Books}}
-    <tr>
-      <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
-      <td>{{.Title}}</td>
-      <td>{{.Author}}</td>
-      <td>{{.Category}}</td>
-    </tr>
-    {{end}}
-  </tbody>
-</table>
-{{else}}
-<p class="muted">No se encontraron resultados.</p>
-{{end}}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Autor</th>
+        <th>Categoría</th>
+        <th>Ver</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Books}}
+      <tr>
+        <td>{{.ID}}</td>
+        <td>{{.Title}}</td>
+        <td>{{.Author}}</td>
+        <td>{{.Category}}</td>
+        <td><a class="link" href="/ui/books/{{.ID}}">Detalle</a></td>
+      </tr>
+      {{else}}
+      <tr><td colspan="5" class="hint">No hay resultados.</td></tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
 {{end}}
