@@ -31,7 +31,7 @@ func (h *Handler) viewBase(title string, content string, showNav bool) map[strin
 
 	return map[string]any{
 		"Title":       title,
-		"Content":     content, // nombre del template interno (home/users/...)
+		"Content":     content, // nombre del template interno (home/users/books/book_search/book_detail/error)
 		"ShowNav":     showNav,
 		"FooterLeft":  "Juan Francisco Morán Gortaire",
 		"FooterRight": "PROGRAMACION ORIENTADA A OBJETOS - " + tomorrow,
@@ -262,7 +262,7 @@ func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 
 // GET /
 func (h *Handler) uiHome(w http.ResponseWriter, r *http.Request) {
-	data := h.viewBase("Inicio", "home", false) // home sin nav
+	data := h.viewBase("Inicio", "home", false)
 	h.r.Render(w, "layout.html", data)
 }
 
@@ -379,23 +379,25 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Trae stats y conviértelo SIEMPRE a map[string]int para el template.
-	rawStats, _ := h.books.StatsByBook(r.Context(), id) // si falla, no rompas la vista
-	stats := map[string]int{}
-	for k, v := range rawStats {
-		stats[string(k)] = v
+	statsDomain, _ := h.books.StatsByBook(r.Context(), id)
+
+	// ✅ CLAVE: convertimos stats a map[string]int para que el template haga index con string
+	statsUI := map[string]int{
+		"APERTURA": 0,
+		"LECTURA":  0,
+		"DESCARGA": 0,
+	}
+	for k, v := range statsDomain {
+		statsUI[string(k)] = v
 	}
 
-	// AccessTypes como []string (para que el index funcione sin error)
-	accessTypes := make([]string, 0, len(domain.AllowedAccessTypes))
-	for _, t := range domain.AllowedAccessTypes {
-		accessTypes = append(accessTypes, string(t))
-	}
+	// ✅ y AccessTypes también como []string
+	accessTypesUI := []string{"APERTURA", "LECTURA", "DESCARGA"}
 
 	data := h.viewBase("Detalle del libro", "book_detail", true)
 	data["Book"] = bookToDTO(b)
-	data["Stats"] = stats
-	data["AccessTypes"] = accessTypes
+	data["Stats"] = statsUI
+	data["AccessTypes"] = accessTypesUI
 
 	h.r.Render(w, "layout.html", data)
 }
@@ -416,7 +418,6 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// No auto-refresh. Solo redirige para ver el conteo actualizado.
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 

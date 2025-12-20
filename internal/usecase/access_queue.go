@@ -1,103 +1,91 @@
-package usecase // Capa de casos de uso: concurrencia y procesamiento asíncrono
+package usecase
 
 import (
-	"context" // Contextos para timeout en operaciones de BD
-	"log"     // Logging de errores
-	"sync"    // Sincronización (WaitGroup)
-	"time"    // Timeouts
+	"context"
+	"errors"
+	"sync"
+	"time"
 
-	"github.com/jfmg0509/sistema_libros_funcional_go/internal/domain" // Dominio: AccessEvent, interfaces
+	"github.com/jfmg0509/sistema_libros_funcional_go/internal/domain"
 )
 
-// AccessQueue implementa una cola concurrente para registrar accesos.
-// Usa canales, goroutines y WaitGroup.
-type AccessQueue struct {
-	ch      chan *domain.AccessEvent   // Canal bufferizado de eventos
-	repo    domain.AccessLogRepository // Repositorio para guardar accesos
-	wg      sync.WaitGroup             // Espera a que terminen los workers
-	closing chan struct{}              // Canal para señalizar cierre
+var ErrQueueClosed = errors.New("access queue closed")
+
+// ✅ IMPORTANTE: este interface NO debe llamarse AccessRepo porque
+// ya existe otro AccessRepo en book_service.go con más métodos.
+type AccessWriter interface {
+	Create(ctx context.Context, e *domain.AccessEvent) (uint64, error)
 }
 
-// NewAccessQueue crea la cola y lanza los workers.
-// buffer: tamaño del canal (capacidad)
-// workers: número de goroutines consumidoras
-func NewAccessQueue(repo domain.AccessLogRepository, buffer int, workers int) *AccessQueue {
+// AccessQueue procesa accesos en background.
+type AccessQueue struct {
+	repo    AccessWriter
+	ch      chan *domain.AccessEvent
+	wg      sync.WaitGroup
+	closing chan struct{}
+	once    sync.Once
+}
 
-	// Valores por defecto si vienen mal configurados
-	if buffer <= 0 {
-		buffer = 100
+func NewAccessQueue(repo AccessWriter, bufferSize int, workers int) *AccessQueue {
+	if bufferSize <= 0 {
+		bufferSize = 100
 	}
 	if workers <= 0 {
-		workers = 2
+		workers = 1
 	}
 
-	// Inicializa la cola
 	q := &AccessQueue{
-		ch:      make(chan *domain.AccessEvent, buffer), // canal bufferizado
-		repo:    repo,                                   // repo inyectado
-		closing: make(chan struct{}),                    // señal de cierre
+		repo:    repo,
+		ch:      make(chan *domain.AccessEvent, bufferSize),
+		closing: make(chan struct{}),
 	}
 
-	// Lanza N workers como goroutines
 	for i := 0; i < workers; i++ {
-		q.wg.Add(1)        // incrementa contador de goroutines activas
-		go q.worker(i + 1) // inicia worker en goroutine
+		q.wg.Add(1)
+		go q.worker()
 	}
 
 	return q
 }
 
-// Enqueue intenta insertar un evento en la cola.
-// Retorna:
-// - true si se encoló correctamente
-// - false si la cola está llena (backpressure)
-func (q *AccessQueue) Enqueue(e *domain.AccessEvent) bool {
+func (q *AccessQueue) Enqueue(e *domain.AccessEvent) error {
+	select {
+	case <-q.closing:
+		return ErrQueueClosed
+	default:
+	}
+
 	select {
 	case q.ch <- e:
-		// Evento encolado con éxito
-		return true
-	default:
-		// Canal lleno: no bloquea la request
-		return false
+		return nil
+	case <-q.closing:
+		return ErrQueueClosed
 	}
 }
 
-// worker consume eventos del canal y los guarda en BD.
-// Cada worker corre en su propia goroutine.
-func (q *AccessQueue) worker(n int) {
-	defer q.wg.Done() // Indica que el worker terminó al salir
+func (q *AccessQueue) worker() {
+	defer q.wg.Done()
 
 	for {
 		select {
-
-		// Caso 1: llega un evento al canal
-		case e := <-q.ch:
-			if e == nil {
-				continue
-			}
-
-			// Contexto con timeout para la operación de BD
-			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-
-			// Inserta el evento en la base de datos
-			if _, err := q.repo.Create(ctx, e); err != nil {
-				log.Printf("[access-worker-%d] insert error: %v", n, err)
-			}
-
-			// Libera recursos del contexto
-			cancel()
-
-		// Caso 2: señal de cierre del sistema
 		case <-q.closing:
-			// Sale del worker de forma ordenada
 			return
+		case e, ok := <-q.ch:
+			if !ok {
+				return
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			_, _ = q.repo.Create(ctx, e) // si falla, no tumba el server
+			cancel()
 		}
 	}
 }
 
-// Close cierra la cola de forma controlada.
-// Señala a los workers que deben detenerse y espera a que terminen.
 func (q *AccessQueue) Close() {
-	close(q.closing) // Notifica a todos los workers que deben salir
-	q.wg.Wait()      // Espera a que todas las goroutines finalicen
+	q.once.Do(func() {
+		close(q.closing)
+		close(q.ch)
+		q.wg.Wait()
+	})
 }
