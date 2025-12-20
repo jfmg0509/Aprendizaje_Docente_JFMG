@@ -9,15 +9,12 @@ import (
 func NewRouter(h *Handler) http.Handler {
 	r := mux.NewRouter()
 
-	// Middlewares (si existen en tu proyecto)
+	// Middlewares (si existen)
 	r.Use(requestIDMiddleware)
 	r.Use(loggingMiddleware)
 	r.Use(methodOverrideMiddleware)
 
-	// ======================
-	// UI (HTML)
-	// ======================
-
+	// UI
 	r.HandleFunc("/", h.uiHome).Methods(http.MethodGet)
 
 	r.HandleFunc("/ui/users", h.uiUsersGET).Methods(http.MethodGet)
@@ -29,22 +26,12 @@ func NewRouter(h *Handler) http.Handler {
 	r.HandleFunc("/ui/books/search", h.uiBookSearchGET).Methods(http.MethodGet)
 	r.HandleFunc("/ui/books/{id:[0-9]+}", h.uiBookDetailGET).Methods(http.MethodGet)
 
-	r.HandleFunc("/ui/access", h.uiAccessPOST).Methods(http.MethodPost)
-
-	// ======================
-	// API REST (JSON)
-	// ======================
-
+	// API (básico)
 	api := r.PathPrefix("/api").Subrouter()
 
-	// Users
 	api.HandleFunc("/users", h.apiCreateUser).Methods(http.MethodPost)
 	api.HandleFunc("/users", h.apiListUsers).Methods(http.MethodGet)
-	api.HandleFunc("/users/{id:[0-9]+}", h.apiGetUser).Methods(http.MethodGet)
-	api.HandleFunc("/users/{id:[0-9]+}", h.apiUpdateUser).Methods(http.MethodPut)
-	api.HandleFunc("/users/{id:[0-9]+}", h.apiDeleteUser).Methods(http.MethodDelete)
 
-	// Books
 	api.HandleFunc("/books", h.apiCreateBook).Methods(http.MethodPost)
 	api.HandleFunc("/books", h.apiListBooks).Methods(http.MethodGet)
 	api.HandleFunc("/books/search", h.apiSearchBooks).Methods(http.MethodGet)
@@ -52,10 +39,6 @@ func NewRouter(h *Handler) http.Handler {
 	api.HandleFunc("/books/{id:[0-9]+}", h.apiUpdateBook).Methods(http.MethodPatch)
 	api.HandleFunc("/books/{id:[0-9]+}", h.apiDeleteBook).Methods(http.MethodDelete)
 
-	// Access (sin estadísticas)
-	api.HandleFunc("/access", h.apiRecordAccess).Methods(http.MethodPost)
-
-	// Health
 	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))

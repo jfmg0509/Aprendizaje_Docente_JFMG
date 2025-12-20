@@ -1,5 +1,5 @@
 {{define "content"}}
-<h1>Buscar</h1>
+<h1 class="page-title">Buscar</h1>
 
 <div class="card">
   <h3>Filtros</h3>
@@ -7,11 +7,16 @@
     <label>Texto (q)</label>
     <input name="q" value="{{.Q}}" placeholder="título, isbn, descripción..." />
 
-    <label>Autor</label>
-    <input name="author" value="{{.Author}}" />
-
-    <label>Categoría</label>
-    <input name="category" value="{{.Category}}" />
+    <div class="row">
+      <div>
+        <label>Autor</label>
+        <input name="author" value="{{.Author}}" />
+      </div>
+      <div>
+        <label>Categoría</label>
+        <input name="category" value="{{.Category}}" />
+      </div>
+    </div>
 
     <button type="submit">Buscar</button>
   </form>
