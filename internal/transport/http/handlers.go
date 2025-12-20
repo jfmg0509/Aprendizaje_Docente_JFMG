@@ -26,11 +26,12 @@ func NewHandler(users *usecase.UserService, books *usecase.BookService, r *Rende
 }
 
 // viewBase arma datos base para TODAS las páginas.
-func (h *Handler) viewBase(title string, showNav bool) map[string]any {
+func (h *Handler) viewBase(title string, content string, showNav bool) map[string]any {
 	tomorrow := time.Now().Add(24 * time.Hour).Format("02/01/2006")
 
 	return map[string]any{
 		"Title":       title,
+		"Content":     content, // nombre del template interno (home/users/books/...)
 		"ShowNav":     showNav,
 		"FooterLeft":  "Juan Francisco Morán Gortaire",
 		"FooterRight": "PROGRAMACION ORIENTADA A OBJETOS - " + tomorrow,
@@ -92,7 +93,7 @@ func (h *Handler) apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 		Name   string      `json:"name"`
 		Email  string      `json:"email"`
 		Role   domain.Role `json:"role"`
-		Active *bool       `json:"active"`
+		Active *bool       `json:"active"` // *bool para permitir “no enviar”
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
@@ -162,7 +163,7 @@ func (h *Handler) apiGetBook(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, bookToDTO(b))
 }
 
-// GET /api/books/search
+// GET /api/books/search?q=...&author=...&category=...
 func (h *Handler) apiSearchBooks(w http.ResponseWriter, r *http.Request) {
 	f := domain.BookFilter{
 		Q:        r.URL.Query().Get("q"),
@@ -261,8 +262,8 @@ func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 
 // GET /
 func (h *Handler) uiHome(w http.ResponseWriter, r *http.Request) {
-	data := h.viewBase("Inicio", false) // Home sin nav
-	h.r.Render(w, "home.html", data)
+	data := h.viewBase("Inicio", "home", false) // home sin nav
+	h.r.Render(w, "layout.html", data)
 }
 
 // GET /ui/users
@@ -273,11 +274,11 @@ func (h *Handler) uiUsersGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := h.viewBase("Usuarios", true)
+	data := h.viewBase("Usuarios", "users", true)
 	data["Users"] = usersToDTO(list)
 	data["Roles"] = domain.AllowedRoles
 
-	h.r.Render(w, "users.html", data)
+	h.r.Render(w, "layout.html", data)
 }
 
 // POST /ui/users
@@ -309,10 +310,10 @@ func (h *Handler) uiBooksGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := h.viewBase("Libros", true)
+	data := h.viewBase("Libros", "books", true)
 	data["Books"] = booksToDTO(list)
 
-	h.r.Render(w, "books.html", data)
+	h.r.Render(w, "layout.html", data)
 }
 
 // POST /ui/books
@@ -359,13 +360,13 @@ func (h *Handler) uiBookSearchGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := h.viewBase("Buscar", true)
+	data := h.viewBase("Buscar", "book_search", true)
 	data["Books"] = booksToDTO(list)
 	data["Q"] = q
 	data["Author"] = author
 	data["Category"] = category
 
-	h.r.Render(w, "book_search.html", data)
+	h.r.Render(w, "layout.html", data)
 }
 
 // GET /ui/books/{id}
@@ -380,12 +381,12 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 
 	stats, _ := h.books.StatsByBook(r.Context(), id)
 
-	data := h.viewBase("Detalle del libro", true)
+	data := h.viewBase("Detalle del libro", "book_detail", true)
 	data["Book"] = bookToDTO(b)
 	data["Stats"] = stats
 	data["AccessTypes"] = domain.AllowedAccessTypes
 
-	h.r.Render(w, "book_detail.html", data)
+	h.r.Render(w, "layout.html", data)
 }
 
 // POST /ui/access
@@ -409,9 +410,9 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 
 // uiError renderiza error en HTML con layout.
 func (h *Handler) uiError(w http.ResponseWriter, err error) {
-	data := h.viewBase("Error", true)
+	data := h.viewBase("Error", "error", true)
 	data["Error"] = err.Error()
-	h.r.Render(w, "error.html", data)
+	h.r.Render(w, "layout.html", data)
 }
 
 //

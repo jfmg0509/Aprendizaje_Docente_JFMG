@@ -1,9 +1,12 @@
-{{define "content"}}
+{{define "users"}}
 <h1 class="page-title">Usuarios</h1>
 
 <div class="grid">
+  <!-- ========================= -->
+  <!-- Crear usuario -->
+  <!-- ========================= -->
   <div class="card">
-    <h3>Crear usuario</h3>
+    <h3 class="section-title">Crear usuario</h3>
 
     <form method="post" action="/ui/users">
       <label>Nombre</label>
@@ -13,7 +16,7 @@
       <input name="email" required />
 
       <label>Rol</label>
-      <select name="role" required>
+      <select name="role">
         {{range .Roles}}
           <option value="{{.}}">{{.}}</option>
         {{end}}
@@ -23,25 +26,38 @@
     </form>
   </div>
 
+  <!-- ========================= -->
+  <!-- Listado -->
+  <!-- ========================= -->
   <div class="card">
-    <h3>Listado</h3>
+    <h3 class="section-title">Listado</h3>
 
-    <table>
-      <thead>
-        <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Activo</th></tr>
-      </thead>
-      <tbody>
-      {{range .Users}}
-        <tr>
-          <td>{{.ID}}</td>
-          <td>{{.Name}}</td>
-          <td>{{.Email}}</td>
-          <td>{{.Role}}</td>
-          <td>{{.Active}}</td>
-        </tr>
-      {{end}}
-      </tbody>
-    </table>
+    {{if .Users}}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Activo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Users}}
+            <tr>
+              <td>{{.ID}}</td>
+              <td>{{.Name}}</td>
+              <td>{{.Email}}</td>
+              <td>{{.Role}}</td>
+              <td>{{if .Active}}Sí{{else}}No{{end}}</td>
+            </tr>
+          {{end}}
+        </tbody>
+      </table>
+    {{else}}
+      <p class="muted">Aún no hay usuarios registrados.</p>
+    {{end}}
   </div>
 </div>
 {{end}}

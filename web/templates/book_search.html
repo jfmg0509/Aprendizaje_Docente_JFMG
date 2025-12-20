@@ -1,27 +1,43 @@
-{{define "content"}}
-<h1 class="page-title">Búsqueda</h1>
+{{define "book_search"}}
+<h1>Búsqueda de libros</h1>
 
 <form method="get" action="/ui/books/search" class="card">
-  <label>Texto</label><input name="q" value="{{.Q}}" placeholder="título, autor, tags" />
-  <label>Autor</label><input name="author" value="{{.Author}}" />
-  <label>Categoría</label><input name="category" value="{{.Category}}" />
+  <label>Texto</label>
+  <input name="q" value="{{.Q}}" placeholder="título, autor, tags" />
+
+  <label>Autor</label>
+  <input name="author" value="{{.Author}}" />
+
+  <label>Categoría</label>
+  <input name="category" value="{{.Category}}" />
+
   <button type="submit">Buscar</button>
 </form>
 
-<div class="card" style="margin-top:18px">
-  <h3>Resultados</h3>
-  <table>
-    <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Categoría</th></tr></thead>
-    <tbody>
+<h3 style="margin-top:24px">Resultados</h3>
+
+{{if .Books}}
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Título</th>
+      <th>Autor</th>
+      <th>Categoría</th>
+    </tr>
+  </thead>
+  <tbody>
     {{range .Books}}
-      <tr>
-        <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
-        <td>{{.Title}}</td>
-        <td>{{.Author}}</td>
-        <td>{{.Category}}</td>
-      </tr>
+    <tr>
+      <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
+      <td>{{.Title}}</td>
+      <td>{{.Author}}</td>
+      <td>{{.Category}}</td>
+    </tr>
     {{end}}
-    </tbody>
-  </table>
-</div>
+  </tbody>
+</table>
+{{else}}
+<p class="muted">No se encontraron resultados.</p>
+{{end}}
 {{end}}

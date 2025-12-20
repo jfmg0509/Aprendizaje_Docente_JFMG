@@ -1,37 +1,65 @@
-{{define "content"}}
-<h1 class="page-title">Libros</h1>
+{{define "books"}}
+<h1>Libros</h1>
 
 <div class="grid">
+  <!-- Crear libro -->
   <div class="card">
     <h3>Crear libro</h3>
+
     <form method="post" action="/ui/books">
-      <label>Título</label><input name="title" required />
-      <label>Autor</label><input name="author" required />
-      <label>Año</label><input name="year" type="number" required />
-      <label>ISBN</label><input name="isbn" required />
-      <label>Categoría</label><input name="category" required />
-      <label>Tags (separados por coma)</label><input name="tags" />
-      <label>Descripción</label><textarea name="description" rows="3"></textarea>
+      <label>Título</label>
+      <input name="title" required />
+
+      <label>Autor</label>
+      <input name="author" required />
+
+      <label>Año</label>
+      <input name="year" type="number" required />
+
+      <label>ISBN</label>
+      <input name="isbn" required />
+
+      <label>Categoría</label>
+      <input name="category" required />
+
+      <label>Tags (coma)</label>
+      <input name="tags" />
+
+      <label>Descripción</label>
+      <textarea name="description" rows="3"></textarea>
+
       <button type="submit">Crear</button>
     </form>
   </div>
 
+  <!-- Listado -->
   <div class="card">
     <h3>Listado</h3>
+
+    {{if .Books}}
     <table>
-      <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Año</th><th>ISBN</th></tr></thead>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Autor</th>
+          <th>Año</th>
+        </tr>
+      </thead>
       <tbody>
-      {{range .Books}}
+        {{range .Books}}
         <tr>
           <td><a href="/ui/books/{{.ID}}">{{.ID}}</a></td>
           <td>{{.Title}}</td>
           <td>{{.Author}}</td>
           <td>{{.Year}}</td>
-          <td>{{.ISBN}}</td>
         </tr>
-      {{end}}
+        {{end}}
       </tbody>
     </table>
+    {{else}}
+      <p class="muted">No hay libros registrados.</p>
+    {{end}}
   </div>
 </div>
 {{end}}
