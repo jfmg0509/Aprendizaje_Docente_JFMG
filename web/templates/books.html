@@ -13,7 +13,7 @@
       <input name="author" required />
 
       <label>Año</label>
-      <input name="year" type="number" placeholder="Ej: 2024" required />
+      <input name="year" type="number" placeholder="2024" required />
 
       <label>ISBN</label>
       <input name="isbn" required />
@@ -22,10 +22,10 @@
       <input name="category" />
 
       <label>Tags (separados por coma)</label>
-      <input name="tags" placeholder="ej: go, backend, programación" />
+      <input name="tags" placeholder="go, backend, programación" />
 
       <label>Descripción</label>
-      <textarea name="description" placeholder="Breve descripción..."></textarea>
+      <textarea name="description"></textarea>
 
       <button type="submit">Crear</button>
     </form>
@@ -41,20 +41,20 @@
           <th>Título</th>
           <th>Autor</th>
           <th>Año</th>
-          <th>Ver</th>
+          <th>Activo</th>
         </tr>
       </thead>
       <tbody>
         {{range .Books}}
         <tr>
           <td>{{.ID}}</td>
-          <td>{{.Title}}</td>
+          <td><a href="/ui/books/{{.ID}}">{{.Title}}</a></td>
           <td>{{.Author}}</td>
           <td>{{.Year}}</td>
-          <td><a class="link" href="/ui/books/{{.ID}}">Detalle</a></td>
+          <td>{{.Active}}</td>
         </tr>
         {{else}}
-        <tr><td colspan="5" class="hint">No hay libros todavía.</td></tr>
+        <tr><td colspan="5" class="mutedText">No hay libros.</td></tr>
         {{end}}
       </tbody>
     </table>

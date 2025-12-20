@@ -10,7 +10,7 @@
       <input name="name" placeholder="Ej: Juan Pérez" required />
 
       <label>Email</label>
-      <input name="email" type="email" placeholder="Ej: juan@mail.com" required />
+      <input name="email" type="email" placeholder="ej: correo@demo.com" required />
 
       <label>Rol</label>
       <select name="role" required>
@@ -43,10 +43,10 @@
           <td>{{.Name}}</td>
           <td>{{.Email}}</td>
           <td>{{.Role}}</td>
-          <td>{{if .Active}}Sí{{else}}No{{end}}</td>
+          <td>{{.Active}}</td>
         </tr>
         {{else}}
-        <tr><td colspan="5" class="hint">No hay usuarios todavía.</td></tr>
+        <tr><td colspan="5" class="mutedText">No hay usuarios.</td></tr>
         {{end}}
       </tbody>
     </table>

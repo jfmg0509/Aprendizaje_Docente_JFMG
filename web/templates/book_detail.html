@@ -17,10 +17,10 @@
     <h3>Registrar acceso</h3>
 
     <form method="POST" action="/ui/access">
-      <input type="hidden" name="book_id" value="{{.Book.ID}}" />
-
       <label>User ID</label>
       <input name="user_id" placeholder="Ej: 1" required />
+
+      <input type="hidden" name="book_id" value="{{.Book.ID}}" />
 
       <label>Tipo de acceso</label>
       <select name="access_type" required>
@@ -30,12 +30,9 @@
       </select>
 
       <button type="submit">Registrar</button>
-
-      <div class="hint">
-        Se registra en cola (channel) y se inserta asíncronamente.
-        Si no ves el conteo al instante, espera 1–2 segundos y refresca manualmente.
-      </div>
     </form>
+
+    <p class="mutedText">Se registra en cola (channel) y se inserta asíncronamente. Si no ves el conteo al instante, espera 1–2 segundos y refresca manualmente.</p>
   </div>
 
   <div class="card">

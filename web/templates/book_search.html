@@ -4,25 +4,20 @@
 <div class="card">
   <h3>Filtros</h3>
   <form method="GET" action="/ui/books/search">
-    <div class="grid-2">
-      <div>
-        <label>Texto</label>
-        <input name="q" value="{{.Q}}" placeholder="Título, ISBN, etc." />
-      </div>
-      <div>
-        <label>Autor</label>
-        <input name="author" value="{{.Author}}" placeholder="Ej: Stephen King" />
-      </div>
-    </div>
+    <label>Texto (q)</label>
+    <input name="q" value="{{.Q}}" placeholder="título, isbn, descripción..." />
+
+    <label>Autor</label>
+    <input name="author" value="{{.Author}}" />
 
     <label>Categoría</label>
-    <input name="category" value="{{.Category}}" placeholder="Ej: Programación" />
+    <input name="category" value="{{.Category}}" />
 
     <button type="submit">Buscar</button>
   </form>
 </div>
 
-<div class="card" style="margin-top:18px;">
+<div class="card" style="margin-top:16px;">
   <h3>Resultados</h3>
 
   <table>
@@ -31,21 +26,19 @@
         <th>ID</th>
         <th>Título</th>
         <th>Autor</th>
-        <th>Categoría</th>
-        <th>Ver</th>
+        <th>Año</th>
       </tr>
     </thead>
     <tbody>
       {{range .Books}}
       <tr>
         <td>{{.ID}}</td>
-        <td>{{.Title}}</td>
+        <td><a href="/ui/books/{{.ID}}">{{.Title}}</a></td>
         <td>{{.Author}}</td>
-        <td>{{.Category}}</td>
-        <td><a class="link" href="/ui/books/{{.ID}}">Detalle</a></td>
+        <td>{{.Year}}</td>
       </tr>
       {{else}}
-      <tr><td colspan="5" class="hint">No hay resultados.</td></tr>
+      <tr><td colspan="4" class="mutedText">Sin resultados.</td></tr>
       {{end}}
     </tbody>
   </table>
