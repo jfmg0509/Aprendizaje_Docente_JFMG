@@ -1,17 +1,11 @@
-{{define "home.html"}}
-  {{template "layout" .}}
-{{end}}
+{{define "home"}}
+<div class="home-wrap">
+  <h1 class="home-title">Bienvenido a la Evaluación con el Docente</h1>
 
-{{define "content"}}
-<h1>Bienvenido a la Evaluación con el Docente</h1>
-
-<div class="home-center">
-  <div>
-    <div class="home-links">
-      <a href="/ui/users">Página 2 (Usuarios)</a>
-      <a href="/ui/books">Página 3 (Libros)</a>
-      <a href="/ui/books/search">Página 4 (Buscar)</a>
-    </div>
+  <div class="home-links">
+    <a class="home-link" href="/ui/users">Página 2 (Usuarios)</a>
+    <a class="home-link" href="/ui/books">Página 3 (Libros)</a>
+    <a class="home-link" href="/ui/books/search">Página 4 (Buscar)</a>
   </div>
 </div>
 {{end}}

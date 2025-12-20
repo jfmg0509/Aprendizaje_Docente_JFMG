@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 
@@ -40,6 +39,7 @@ func (h *Handler) apiCreateUser(w http.ResponseWriter, r *http.Request) {
 		Email string      `json:"email"`
 		Role  domain.Role `json:"role"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
 		return
@@ -50,6 +50,7 @@ func (h *Handler) apiCreateUser(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusCreated, userToDTO(u))
 }
 
@@ -66,11 +67,13 @@ func (h *Handler) apiListUsers(w http.ResponseWriter, r *http.Request) {
 // GET /api/users/{id}
 func (h *Handler) apiGetUser(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
+
 	u, err := h.users.Get(r.Context(), id)
 	if err != nil {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusOK, userToDTO(u))
 }
 
@@ -78,13 +81,14 @@ func (h *Handler) apiGetUser(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
 
-	// active como *bool para permitir “no enviar”
+	// Active como *bool permite “no enviar” el campo
 	var in struct {
 		Name   string      `json:"name"`
 		Email  string      `json:"email"`
 		Role   domain.Role `json:"role"`
 		Active *bool       `json:"active"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
 		return
@@ -95,16 +99,19 @@ func (h *Handler) apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusOK, userToDTO(u))
 }
 
 // DELETE /api/users/{id}
 func (h *Handler) apiDeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
+
 	if err := h.users.Delete(r.Context(), id); err != nil {
 		writeErr(w, err)
 		return
 	}
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -121,6 +128,7 @@ func (h *Handler) apiCreateBook(w http.ResponseWriter, r *http.Request) {
 		Tags        []string `json:"tags"`
 		Description string   `json:"description"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
 		return
@@ -131,6 +139,7 @@ func (h *Handler) apiCreateBook(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusCreated, bookToDTO(b))
 }
 
@@ -147,11 +156,13 @@ func (h *Handler) apiListBooks(w http.ResponseWriter, r *http.Request) {
 // GET /api/books/{id}
 func (h *Handler) apiGetBook(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
+
 	b, err := h.books.Get(r.Context(), id)
 	if err != nil {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusOK, bookToDTO(b))
 }
 
@@ -162,11 +173,13 @@ func (h *Handler) apiSearchBooks(w http.ResponseWriter, r *http.Request) {
 		Author:   r.URL.Query().Get("author"),
 		Category: r.URL.Query().Get("category"),
 	}
+
 	list, err := h.books.Search(r.Context(), f)
 	if err != nil {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusOK, booksToDTO(list))
 }
 
@@ -184,6 +197,7 @@ func (h *Handler) apiUpdateBook(w http.ResponseWriter, r *http.Request) {
 		Description *string   `json:"description"`
 		Active      *bool     `json:"active"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
 		return
@@ -203,16 +217,19 @@ func (h *Handler) apiUpdateBook(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusOK, bookToDTO(out))
 }
 
 // DELETE /api/books/{id}
 func (h *Handler) apiDeleteBook(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
+
 	if err := h.books.Delete(r.Context(), id); err != nil {
 		writeErr(w, err)
 		return
 	}
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -225,6 +242,7 @@ func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
 		BookID     uint64            `json:"book_id"`
 		AccessType domain.AccessType `json:"access_type"`
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
 		return
@@ -234,17 +252,20 @@ func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusCreated, map[string]any{"ok": true})
 }
 
 // GET /api/books/{id}/stats
 func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 	bookID := mustUint64(mux.Vars(r)["id"])
+
 	stats, err := h.books.StatsByBook(r.Context(), bookID)
 	if err != nil {
 		writeErr(w, err)
 		return
 	}
+
 	writeJSON(w, http.StatusOK, stats)
 }
 
@@ -257,8 +278,7 @@ func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 // GET /
 func (h *Handler) uiHome(w http.ResponseWriter, r *http.Request) {
 	h.r.Render(w, "home.html", map[string]any{
-		"Title":    "Inicio",
-		"Tomorrow": tomorrowEC(),
+		"Title": "Inicio",
 	})
 }
 
@@ -271,10 +291,9 @@ func (h *Handler) uiUsersGET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.r.Render(w, "users.html", map[string]any{
-		"Title":    "Usuarios",
-		"Tomorrow": tomorrowEC(),
-		"Users":    usersToDTO(list),
-		"Roles":    domain.AllowedRoles,
+		"Title": "Usuarios",
+		"Users": usersToDTO(list),
+		"Roles": domain.AllowedRoles,
 	})
 }
 
@@ -308,9 +327,8 @@ func (h *Handler) uiBooksGET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.r.Render(w, "books.html", map[string]any{
-		"Title":    "Libros",
-		"Tomorrow": tomorrowEC(),
-		"Books":    booksToDTO(list),
+		"Title": "Libros",
+		"Books": booksToDTO(list),
 	})
 }
 
@@ -360,7 +378,6 @@ func (h *Handler) uiBookSearchGET(w http.ResponseWriter, r *http.Request) {
 
 	h.r.Render(w, "book_search.html", map[string]any{
 		"Title":    "Buscar",
-		"Tomorrow": tomorrowEC(),
 		"Books":    booksToDTO(list),
 		"Q":        q,
 		"Author":   author,
@@ -378,12 +395,11 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// stats puede fallar si aún no hay accesos; no “rompemos” la vista por eso
+	// stats puede fallar si aún no hay accesos; no rompemos la vista por eso
 	stats, _ := h.books.StatsByBook(r.Context(), id)
 
 	h.r.Render(w, "book_detail.html", map[string]any{
 		"Title":       "Detalle del libro",
-		"Tomorrow":    tomorrowEC(),
 		"Book":        bookToDTO(b),
 		"Stats":       stats,
 		"AccessTypes": domain.AllowedAccessTypes,
@@ -406,16 +422,14 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// volver al detalle del libro
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 
 // Render de error HTML
 func (h *Handler) uiError(w http.ResponseWriter, err error) {
 	h.r.Render(w, "error.html", map[string]any{
-		"Title":    "Error",
-		"Tomorrow": tomorrowEC(),
-		"Error":    err.Error(),
+		"Title": "Error",
+		"Error": err.Error(),
 	})
 }
 
@@ -444,11 +458,4 @@ func splitCSV(s string) []string {
 		}
 	}
 	return out
-}
-
-// tomorrowEC devuelve la fecha de mañana en formato dd/mm/yyyy.
-// (No depende de timezone del servidor; si quieres, luego lo ajustamos a -05:00 fijo)
-func tomorrowEC() string {
-	t := time.Now().Add(24 * time.Hour)
-	return t.Format("02/01/2006")
 }
