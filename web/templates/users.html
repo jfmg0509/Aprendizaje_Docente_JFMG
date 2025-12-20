@@ -1,47 +1,48 @@
-{{define "users"}}
-<div class="page">
-  <h1 class="title">Usuarios</h1>
+{{define "users.html"}}
+  {{template "layout" .}}
+{{end}}
 
-  <div class="grid">
-    <!-- Formulario -->
-    <div class="card">
-      <h3 class="subtitle">Crear usuario</h3>
+{{define "content"}}
+<h1 class="page-title">Usuarios</h1>
 
-      <form method="post" action="/ui/users" class="form">
-        <label class="label">Nombre</label>
-        <input class="input" name="name" required />
+<div class="grid">
+  <div class="card">
+    <h3>Crear usuario</h3>
 
-        <label class="label">Email</label>
-        <input class="input" name="email" type="email" required />
+    <form method="post" action="/ui/users">
+      <label>Nombre</label>
+      <input name="name" required />
 
-        <label class="label">Rol</label>
-        <select class="input" name="role" required>
-          {{range .Roles}}
-            <option value="{{.}}">{{.}}</option>
-          {{end}}
-        </select>
+      <label>Email</label>
+      <input name="email" required />
 
-        <button class="btn" type="submit">Crear</button>
-      </form>
-    </div>
+      <label>Rol</label>
+      <select name="role" required>
+        {{range .Roles}}
+          <option value="{{.}}">{{.}}</option>
+        {{end}}
+      </select>
 
-    <!-- Tabla -->
-    <div class="card">
-      <h3 class="subtitle">Listado</h3>
+      <button type="submit">Crear</button>
+    </form>
+  </div>
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Activo</th>
-          </tr>
-        </thead>
+  <div class="card">
+    <h3>Listado</h3>
 
-        <tbody>
-          {{range .Users}}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Activo</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {{range .Users}}
           <tr>
             <td>{{.ID}}</td>
             <td>{{.Name}}</td>
@@ -49,96 +50,9 @@
             <td>{{.Role}}</td>
             <td>{{.Active}}</td>
           </tr>
-          {{end}}
-        </tbody>
-      </table>
-    </div>
+        {{end}}
+      </tbody>
+    </table>
   </div>
 </div>
-
-<style>
-  /* Ajustes visuales SOLO para esta página */
-  .page { background:#FFFFFF; }
-
-  .title{
-    margin: 10px 0 18px 0;
-    font-family: Calibri, "Calibri Light", Arial, sans-serif;
-    font-weight: 700; /* Bold */
-    color: #3686F5;
-    font-size: 44px;
-    letter-spacing: 0.3px;
-  }
-
-  .subtitle{
-    font-family: Calibri, "Calibri Light", Arial, sans-serif;
-    font-weight: 600;
-    color: #111;
-    margin: 0 0 12px 0;
-  }
-
-  .label{
-    display:block;
-    margin-top: 10px;
-    margin-bottom: 6px;
-    font-family: Calibri, "Calibri Light", Arial, sans-serif;
-    color:#1b1b1b;
-  }
-
-  .form .input{
-    width: 100%;
-    padding: 12px 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    outline: none;
-    font-family: Calibri, "Calibri Light", Arial, sans-serif;
-  }
-
-  .btn{
-    margin-top: 14px;
-    padding: 10px 16px;
-    border: 1px solid #dbe6ff;
-    border-radius: 12px;
-    background: #ffffff;
-    color: #2D73D6;
-    cursor: pointer;
-    font-family: Calibri, "Calibri Light", Arial, sans-serif;
-  }
-
-  .btn:hover{
-    background:#f5f9ff;
-  }
-
-  .grid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    align-items:start;
-  }
-
-  .card{
-    border: 1px solid #e6e6e6;
-    border-radius: 16px;
-    padding: 18px;
-    background:#fff;
-  }
-
-  .table{
-    width:100%;
-    border-collapse:collapse;
-    font-family: Calibri, "Calibri Light", Arial, sans-serif;
-  }
-  .table th, .table td{
-    border: 1px solid #e9e9e9;
-    padding: 10px;
-    text-align:left;
-  }
-  .table th{
-    background:#f8fafc;
-  }
-
-  @media (max-width: 980px){
-    .grid{ grid-template-columns: 1fr; }
-    .title{ font-size: 36px; }
-  }
-</style>
 {{end}}

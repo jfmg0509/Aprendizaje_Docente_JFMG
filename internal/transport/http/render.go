@@ -5,48 +5,72 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"sync"
 )
 
-// Renderer se encarga de cargar y renderizar templates HTML.
-// Convención usada:
-// - layout.html define: {{define "layout"}} ... {{template "content" .}} ... {{end}}
-// - cada página define:
-//  1. {{define "NOMBRE_DE_LA_PAGINA"}} {{template "layout" .}} {{end}}
-//  2. {{define "content"}} ... contenido ... {{end}}
+// Renderer renderiza HTML cargando SIEMPRE:
+// - layout.html
+// - la página pedida (ej: users.html)
 //
-// Importante:
-//   - Render() NO ejecuta "layout" directamente, porque "layout" necesita que exista
-//     un template "content" ya definido. En su lugar, ejecuta el template de la página.
+// Esto evita el problema de que todas las páginas definan "content" y se sobreescriban
+// cuando parseas todo con ParseGlob.
 type Renderer struct {
-	tpl *template.Template
-	dir string
+	dir   string
+	mu    sync.RWMutex
+	cache map[string]*template.Template // cache por página (users.html, home.html, etc.)
 }
 
-// NewRenderer carga todos los templates *.html dentro del directorio indicado.
-// Ejemplo: NewRenderer("web/templates")
+// NewRenderer crea el renderer apuntando al directorio web/templates
 func NewRenderer(templatesDir string) (*Renderer, error) {
-	pattern := filepath.Join(templatesDir, "*.html")
-
-	tpl, err := template.ParseGlob(pattern)
-	if err != nil {
-		return nil, fmt.Errorf("parse templates (%s): %w", pattern, err)
-	}
-
 	return &Renderer{
-		tpl: tpl,
-		dir: templatesDir,
+		dir:   templatesDir,
+		cache: make(map[string]*template.Template),
 	}, nil
 }
 
-// Render ejecuta un template por nombre (ej: "users.html", "home.html").
-// data es el map/struct que tú mandas desde los handlers.
+// Render ejecuta un template por nombre de archivo (ej: "users.html").
+// Internamente parsea layout.html + ese archivo y lo cachea.
 func (r *Renderer) Render(w http.ResponseWriter, name string, data any) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	// Ejecutamos el template de la página, NO el layout.
-	// Ese template de página debe llamar a {{template "layout" .}}
-	if err := r.tpl.ExecuteTemplate(w, name, data); err != nil {
+	tpl, err := r.getTemplate(name)
+	if err != nil {
 		http.Error(w, "template error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Ejecutamos la página solicitada (ej: users.html).
+	// Esa página debe llamar a {{template "layout" .}} internamente.
+	if err := tpl.ExecuteTemplate(w, name, data); err != nil {
+		http.Error(w, "template exec error: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// getTemplate devuelve el template parseado (layout + page), con cache.
+func (r *Renderer) getTemplate(name string) (*template.Template, error) {
+	// 1) leer cache
+	r.mu.RLock()
+	if t, ok := r.cache[name]; ok {
+		r.mu.RUnlock()
+		return t, nil
+	}
+	r.mu.RUnlock()
+
+	// 2) construir rutas
+	layoutPath := filepath.Join(r.dir, "layout.html")
+	pagePath := filepath.Join(r.dir, name)
+
+	// 3) parsear solo lo necesario
+	tpl, err := template.ParseFiles(layoutPath, pagePath)
+	if err != nil {
+		return nil, fmt.Errorf("parse files layout=%s page=%s: %w", layoutPath, pagePath, err)
+	}
+
+	// 4) guardar cache
+	r.mu.Lock()
+	r.cache[name] = tpl
+	r.mu.Unlock()
+
+	return tpl, nil
 }

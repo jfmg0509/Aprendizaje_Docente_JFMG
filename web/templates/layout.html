@@ -5,240 +5,98 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>{{.Title}}</title>
-
   <style>
-    /* ====== Base ====== */
-    :root{
-      --bg: #FFFFFF;
-      --title: #3686F5;
-      --link: #2D73D6;
-      --text: #1a1a1a;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-    }
-
-    html, body { height: 100%; }
     body{
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Calibri, "Calibri Light", "Segoe UI", Roboto, Arial, sans-serif;
+      background:#FFFFFF;
+      font-family: Calibri, "Calibri Light", Arial, sans-serif;
+      margin:0;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:24px 28px 70px 28px;
+    }
+    nav{
+      padding:18px 28px;
+      border-bottom:1px solid #e9eef7;
+    }
+    nav a{
+      color:#2D73D6;
+      text-decoration:none;
+      margin-right:18px;
+      font-family: "Calibri Light", Calibri, Arial, sans-serif;
+      font-size:16px;
+    }
+    nav a:hover{ text-decoration:underline; }
+
+    h1{
+      color:#3686F5;
+      font-family:"Calibri Light", Calibri, Arial, sans-serif;
+      font-weight:700;
+      font-size:44px;
+      margin:26px 0 18px 0;
     }
 
-    /* Layout general con footer pegado abajo */
-    .page{
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    /* cards/forms usados en users/libros */
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .card{border:1px solid #e6eefc;border-radius:14px;padding:18px}
+    label{display:block;margin-top:10px}
+    input,select,textarea{width:100%;padding:10px;margin-top:6px;border:1px solid #d9e6fb;border-radius:10px}
+    button{padding:10px 16px;border-radius:10px;border:1px solid #b9d2fb;background:#fff;cursor:pointer}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #e6eefc;padding:10px;text-align:left}
+    th{background:#f6f9ff}
 
-    .container{
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 18px 22px 0 22px;
-      box-sizing: border-box;
-      flex: 1;
-    }
-
-    /* ====== Top nav (si luego decides ocultarlo en Home, lo hacemos) ====== */
-    .topnav{
-      display: flex;
-      gap: 22px;
-      align-items: center;
-      padding: 10px 0 14px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .topnav a{
-      color: var(--link);
-      text-decoration: none;
-      font-family: "Calibri Light", Calibri, sans-serif;
-      font-weight: 300;
-      font-size: 16px;
-    }
-    .topnav a:hover{ text-decoration: underline; }
-
-    .topnav .api{
-      margin-left: 8px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    /* ====== Tipos ====== */
-    h1, h2, h3{
-      margin: 0 0 14px 0;
-    }
-
-    /* Titulos: Calibri Light Bold + color */
-    .page-title, .home-title{
-      color: var(--title);
-      font-family: "Calibri Light", Calibri, sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-    }
-
-    /* ====== Cards / tablas / forms ====== */
-    .grid{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    .card{
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      box-sizing: border-box;
-      background: #fff;
-    }
-
-    label{
-      display:block;
-      margin-top: 10px;
-      margin-bottom: 6px;
-      font-family: "Calibri Light", Calibri, sans-serif;
-      font-weight: 300;
-    }
-
-    input, select, textarea{
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      outline: none;
-      font-family: Calibri, "Calibri Light", sans-serif;
-      font-size: 15px;
-    }
-
-    button{
-      margin-top: 14px;
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fff;
-      cursor: pointer;
-      font-family: Calibri, "Calibri Light", sans-serif;
-    }
-    button:hover{
-      border-color: #cbd5e1;
-    }
-
-    table{
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-    }
-    th, td{
-      border: 1px solid var(--border);
-      padding: 10px;
-      text-align: left;
-      font-family: Calibri, "Calibri Light", sans-serif;
-    }
-    th{
-      background: #f8fafc;
-      font-weight: 700;
-    }
-
-    /* ====== Home ====== */
-    .home-wrap{
-      height: calc(100vh - 150px); /* deja espacio al footer */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 22px;
-      text-align: center;
-    }
-
-    .home-title{
-      font-size: 44px;
-      line-height: 1.1;
-    }
-
+    /* Home links centrados */
     .home-links{
-      display: flex;
-      gap: 22px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 10px;
+      margin-top:30px;
+      display:flex;
+      gap:26px;
+      flex-wrap:wrap;
     }
-
-    .home-link{
-      color: var(--link);
-      text-decoration: none;
-      font-family: "Calibri Light", Calibri, sans-serif;
-      font-weight: 300;
-      font-size: 18px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: 1px solid transparent;
+    .home-links a{
+      color:#2D73D6;
+      font-family:"Calibri Light", Calibri, Arial, sans-serif;
+      font-size:18px;
+      text-decoration:none;
     }
+    .home-links a:hover{ text-decoration:underline; }
 
-    .home-link:hover{
-      text-decoration: underline;
-      border-color: var(--border);
-    }
-
-    /* ====== Footer ====== */
+    /* Footer fijo */
     .footer{
-      border-top: 1px solid var(--border);
-      padding: 14px 22px;
-      box-sizing: border-box;
-      width: 100%;
-    }
-
-    .footer-inner{
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      color: var(--link);
-      font-family: "Calibri Light", Calibri, sans-serif;
-      font-weight: 300;
-      font-size: 16px;
-    }
-
-    /* Responsive */
-    @media (max-width: 900px){
-      .grid{ grid-template-columns: 1fr; }
-      .home-title{ font-size: 34px; }
-      .topnav{ flex-wrap: wrap; gap: 14px; }
-      .footer-inner{ flex-direction: column; align-items: flex-start; }
+      position:fixed;
+      left:0; right:0; bottom:0;
+      padding:14px 28px;
+      border-top:1px solid #e9eef7;
+      background:#FFFFFF;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-family:"Calibri Light", Calibri, Arial, sans-serif;
+      color:#2D73D6;
+      font-size:14px;
     }
   </style>
 </head>
-
 <body>
-  <div class="page">
-    <div class="container">
 
-      <!-- NAV (si después quieres ocultarla solo en Home, lo hacemos) -->
-      <nav class="topnav">
-        <a href="/">Inicio</a>
-        <a href="/ui/users">Usuarios</a>
-        <a href="/ui/books">Libros</a>
-        <a href="/ui/books/search">Buscar</a>
-        <span class="api">| API: /api/*</span>
-      </nav>
+  <nav>
+    <a href="/">Inicio</a>
+    <a href="/ui/users">Usuarios</a>
+    <a href="/ui/books">Libros</a>
+    <a href="/ui/books/search">Buscar</a>
+    <span style="color:#2D73D6;">| API: /api/*</span>
+  </nav>
 
-      <!-- Contenido de cada página -->
-      {{template .View .}}
-
-    </div>
-
-    <!-- Footer fijo al final -->
-    <footer class="footer">
-      <div class="footer-inner">
-        <div>Juan Francisco Morán Gortaire</div>
-        <div>PROGRAMACION ORIENTADA A OBJETOS - {{.Tomorrow}}</div>
-      </div>
-    </footer>
+  <div class="wrap">
+    {{template "content" .}}
   </div>
+
+  <div class="footer">
+    <div>Juan Francisco Morán Gortaire</div>
+    <div>PROGRAMACION ORIENTADA A OBJETOS - {{.FooterDate}}</div>
+  </div>
+
 </body>
 </html>
 {{end}}
