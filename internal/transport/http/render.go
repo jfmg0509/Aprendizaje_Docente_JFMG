@@ -9,32 +9,52 @@ import (
 )
 
 type Renderer struct {
-	dir   string
-	base  *template.Template
-	mu    sync.RWMutex
-	pages map[string]*template.Template
+	dir      string
+	layout   *template.Template
+	mu       sync.RWMutex
+	rendered map[string]*template.Template
 }
 
-// NewRenderer carga SOLO el layout como base.
-// Luego, por cada Render(pageFile), clona el layout y parsea esa página (que define "content").
+// NewRenderer
+// - Carga SOLO layout.html
+// - Las páginas definen "content"
 func NewRenderer(templatesDir string) (*Renderer, error) {
 	layoutPath := filepath.Join(templatesDir, "layout.html")
 
-	base, err := template.ParseFiles(layoutPath)
+	tpl, err := template.ParseFiles(layoutPath)
 	if err != nil {
-		return nil, fmt.Errorf("parse layout (%s): %w", layoutPath, err)
+		return nil, fmt.Errorf("error parsing layout.html: %w", err)
 	}
 
 	return &Renderer{
-		dir:   templatesDir,
-		base:  base,
-		pages: map[string]*template.Template{},
+		dir:      templatesDir,
+		layout:   tpl,
+		rendered: make(map[string]*template.Template),
 	}, nil
 }
 
-func (r *Renderer) getPageTemplate(pageFile string) (*template.Template, error) {
+// Render
+// - Clona layout
+// - Parsea la página (users.html, books.html, etc.)
+// - Ejecuta template "layout"
+func (r *Renderer) Render(w http.ResponseWriter, page string, data any) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	tpl, err := r.get(page)
+	if err != nil {
+		http.Error(w, "template error: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := tpl.ExecuteTemplate(w, "layout", data); err != nil {
+		http.Error(w, "template execute error: "+err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// get obtiene o construye el template final
+func (r *Renderer) get(page string) (*template.Template, error) {
 	r.mu.RLock()
-	if t, ok := r.pages[pageFile]; ok {
+	if t, ok := r.rendered[page]; ok {
 		r.mu.RUnlock()
 		return t, nil
 	}
@@ -43,37 +63,21 @@ func (r *Renderer) getPageTemplate(pageFile string) (*template.Template, error) 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// re-check
-	if t, ok := r.pages[pageFile]; ok {
+	// doble chequeo
+	if t, ok := r.rendered[page]; ok {
 		return t, nil
 	}
 
-	clone, err := r.base.Clone()
+	clone, err := r.layout.Clone()
 	if err != nil {
-		return nil, fmt.Errorf("clone base: %w", err)
+		return nil, err
 	}
 
-	pagePath := filepath.Join(r.dir, pageFile)
+	pagePath := filepath.Join(r.dir, page)
 	if _, err := clone.ParseFiles(pagePath); err != nil {
-		return nil, fmt.Errorf("parse page (%s): %w", pagePath, err)
+		return nil, err
 	}
 
-	r.pages[pageFile] = clone
+	r.rendered[page] = clone
 	return clone, nil
-}
-
-// Render ejecuta "layout" (definido en layout.html) y dentro layout llama a {{template "content" .}}
-func (r *Renderer) Render(w http.ResponseWriter, pageFile string, data any) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	tpl, err := r.getPageTemplate(pageFile)
-	if err != nil {
-		http.Error(w, "template error: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if err := tpl.ExecuteTemplate(w, "layout", data); err != nil {
-		http.Error(w, "template error: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
 }

@@ -1,5 +1,5 @@
 {{define "content"}}
-<h1 class="page-title">Detalle del libro</h1>
+<h1>Detalle del libro</h1>
 
 <div class="card">
   <p><b>ID:</b> {{.Book.ID}}</p>
@@ -10,30 +10,5 @@
   <p><b>Categoría:</b> {{.Book.Category}}</p>
   <p><b>Tags:</b> {{.Book.Tags}}</p>
   <p><b>Descripción:</b> {{.Book.Description}}</p>
-</div>
-
-<div class="card" style="margin-top:16px;">
-  <h3>Registrar acceso</h3>
-
-  <form method="POST" action="/ui/access">
-    <input type="hidden" name="book_id" value="{{.Book.ID}}" />
-
-    <label>User ID</label>
-    <input name="user_id" placeholder="Ej: 1" required />
-
-    <label>Tipo de acceso</label>
-    <select name="access_type" required>
-      {{range .AccessTypes}}
-        <option value="{{.}}">{{.}}</option>
-      {{end}}
-    </select>
-
-    <button type="submit">Registrar</button>
-  </form>
-
-  <p class="mutedText" style="margin-top:10px;">
-    Se registra en cola (channel) y se inserta asíncronamente. Si no ves el conteo al instante,
-    espera 1–2 segundos y refresca manualmente.
-  </p>
 </div>
 {{end}}

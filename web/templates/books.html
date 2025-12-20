@@ -1,7 +1,7 @@
 {{define "content"}}
-<h1 class="page-title">Libros</h1>
+<h1>Libros</h1>
 
-<div class="grid grid-2">
+<div class="grid-2">
   <div class="card">
     <h3>Crear libro</h3>
 
@@ -12,16 +12,11 @@
       <label>Autor</label>
       <input name="author" required />
 
-      <div class="row">
-        <div>
-          <label>Año</label>
-          <input name="year" type="number" placeholder="2024" required />
-        </div>
-        <div>
-          <label>ISBN</label>
-          <input name="isbn" required />
-        </div>
-      </div>
+      <label>Año</label>
+      <input name="year" type="number" placeholder="2024" required />
+
+      <label>ISBN</label>
+      <input name="isbn" required />
 
       <label>Categoría</label>
       <input name="category" />

@@ -8,32 +8,26 @@
 
   <style>
     :root{
-      --bg:#f6f8fc;
-      --surface:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --border:#e6eaf2;
-      --primary:#3686F5;
-      --link:#2D73D6;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      --bg:#F5F7FB;
+      --card:#FFFFFF;
+      --title:#2563EB;
+      --text:#0F172A;
+      --muted:#64748B;
+      --border:#E5E7EB;
+      --link:#2563EB;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
       --radius: 18px;
-      --radius-sm: 12px;
-      --focus: 0 0 0 4px rgba(54,134,245,.18);
+      --radius2: 12px;
     }
 
     *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    html,body{height:100%;}
     body{
       margin:0;
-      background: radial-gradient(1200px 700px at 20% -10%, rgba(54,134,245,.14), transparent 60%),
-                  radial-gradient(900px 600px at 90% 0%, rgba(45,115,214,.10), transparent 55%),
-                  var(--bg);
+      background:var(--bg);
       font-family: Calibri, "Calibri Light", "Segoe UI", Arial, sans-serif;
       color:var(--text);
     }
-
-    a{ color:var(--link); text-decoration:none; }
-    a:hover{ text-decoration:underline; }
 
     .page{
       min-height:100vh;
@@ -41,245 +35,178 @@
       flex-direction:column;
     }
 
-    /* NAV */
     nav{
       position:sticky;
       top:0;
       z-index:10;
-      backdrop-filter: blur(8px);
-      background: rgba(246,248,252,.72);
+      background:rgba(245,247,251,0.86);
+      backdrop-filter: blur(10px);
       border-bottom:1px solid var(--border);
+      padding:14px 20px;
     }
+
     .nav-inner{
       max-width:1100px;
       margin:0 auto;
-      padding:14px 18px;
       display:flex;
-      gap:18px;
+      gap:14px;
       align-items:center;
-      justify-content:space-between;
-    }
-    .nav-left{
-      display:flex;
-      gap:18px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:700;
-      color:var(--text);
-    }
-    .dot{
-      width:10px;height:10px;border-radius:999px;
-      background:var(--primary);
-      box-shadow: 0 0 0 6px rgba(54,134,245,.12);
-    }
-    .nav-links{
-      display:flex;
-      gap:16px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .nav-links a{
-      font-weight:300;
-      font-size:16px;
-      padding:8px 10px;
-      border-radius:999px;
-    }
-    .nav-links a:hover{
-      background: rgba(54,134,245,.10);
-      text-decoration:none;
-    }
-    .nav-right{
-      color:var(--muted);
-      font-weight:300;
-      font-size:14px;
-      white-space:nowrap;
     }
 
-    /* MAIN */
+    .nav-inner a{
+      color:var(--link);
+      text-decoration:none;
+      font-weight:600;
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .nav-inner a:hover{
+      background:#EAF0FF;
+      text-decoration:none;
+    }
+    .nav-inner .muted{
+      margin-left:6px;
+      color:var(--muted);
+      font-weight:400;
+    }
+
     .container{
       width:100%;
       max-width:1100px;
       margin:0 auto;
-      padding:22px 18px 28px;
+      padding:26px 18px 40px;
       flex:1;
     }
 
-    .page-title{
-      margin: 8px 0 18px 0;
-      font-size: 44px;
-      font-weight: 700;
-      letter-spacing: .2px;
-      color: var(--primary);
-    }
-
-    .grid{
-      display:grid;
-      gap:16px;
-    }
-    .grid-2{
-      grid-template-columns: 1fr 1fr;
-    }
-    @media (max-width: 980px){
-      .grid-2{ grid-template-columns: 1fr; }
-      .page-title{ font-size: 38px; }
+    h1{
+      margin:0 0 18px 0;
+      color:var(--title);
+      font-weight:800;
+      font-size:44px;
+      letter-spacing:0.2px;
     }
 
     .card{
-      background:var(--surface);
+      background:var(--card);
       border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
       padding:18px;
     }
-    .card h3{
-      margin: 2px 0 14px;
-      font-size: 18px;
-    }
 
-    /* FORMS */
-    label{
-      display:block;
-      margin:12px 0 6px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-    input, select, textarea{
-      width:100%;
-      border:1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 15px;
-      outline:none;
-      background:#fff;
-    }
-    textarea{ min-height: 90px; resize: vertical; }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(54,134,245,.55);
-      box-shadow: var(--focus);
-    }
-
-    .row{
+    .grid-2{
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap:12px;
+      gap:18px;
     }
-    @media (max-width: 980px){
-      .row{ grid-template-columns: 1fr; }
+    @media (max-width: 920px){
+      .grid-2{ grid-template-columns: 1fr; }
     }
+
+    label{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      margin:10px 0 6px;
+      font-weight:600;
+    }
+    input,select,textarea{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      outline:none;
+      font-size:15px;
+      background:#fff;
+    }
+    textarea{ min-height:90px; resize:vertical; }
 
     button{
-      margin-top: 14px;
-      border:0;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 15px;
-      cursor:pointer;
-      background: var(--primary);
+      margin-top:12px;
+      padding:10px 14px;
+      border:none;
+      border-radius:12px;
+      background:var(--title);
       color:#fff;
-      box-shadow: 0 10px 20px rgba(54,134,245,.20);
+      font-weight:700;
+      cursor:pointer;
     }
-    button:hover{ filter: brightness(.98); }
-    .btn-secondary{
-      background:#fff;
-      color:var(--text);
-      border:1px solid var(--border);
-      box-shadow:none;
-    }
+    button:hover{ filter:brightness(0.95); }
 
-    /* TABLE */
     table{
       width:100%;
-      border-collapse: separate;
-      border-spacing: 0;
+      border-collapse:separate;
+      border-spacing:0;
       overflow:hidden;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background:#fff;
-    }
-    thead th{
-      text-align:left;
-      font-size: 13px;
-      color: var(--muted);
-      background: rgba(246,248,252,.9);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 10px;
-      font-weight:700;
-    }
-    tbody td{
-      padding: 10px 10px;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
-      vertical-align: top;
-    }
-    tbody tr:last-child td{ border-bottom:0; }
-    .mutedText{ color: var(--muted); font-size: 14px; }
-
-    /* HOME CENTER */
-    .home-center{
-      min-height: calc(100vh - 140px);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-    }
-    .home-box{
-      width: min(760px, 100%);
-      padding: 26px;
-    }
-    .home-box p{
-      margin: 8px 0 18px;
-      color: var(--muted);
-      font-size: 16px;
-    }
-    .home-actions{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      justify-content:center;
-      margin-top: 12px;
-    }
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding: 12px 14px;
-      border-radius: 999px;
+      border-radius:var(--radius2);
       border:1px solid var(--border);
-      background:#fff;
-      box-shadow: var(--shadow);
-      font-weight:300;
-      font-size:16px;
-      text-decoration:none;
-      color: var(--link);
     }
-    .chip:hover{
+    th,td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      font-size:14px;
+    }
+    th{ background:#F1F5FF; color:#0F172A; }
+    tr:last-child td{ border-bottom:none; }
+
+    a{ color:var(--link); text-decoration:none; font-weight:700; }
+    a:hover{ text-decoration:underline; }
+
+    .mutedText{ color:var(--muted); font-style:italic; }
+
+    /* HOME centrado */
+    .center-wrap{
+      min-height:70vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .home-card{
+      width:100%;
+      max-width:720px;
+      text-align:center;
+      padding:28px;
+    }
+    .home-links{
+      margin-top:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+    }
+    .home-links a{
+      display:inline-block;
+      width:100%;
+      max-width:360px;
+      padding:12px 14px;
+      background:#F1F5FF;
+      border:1px solid #DCE6FF;
+      border-radius:14px;
       text-decoration:none;
-      border-color: rgba(54,134,245,.45);
-      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+    }
+    .home-links a:hover{
+      background:#EAF0FF;
+      text-decoration:none;
     }
 
-    /* FOOTER */
     footer{
       border-top:1px solid var(--border);
-      background: rgba(246,248,252,.75);
+      background:rgba(255,255,255,0.55);
+      padding:14px 20px;
     }
     .footer-inner{
       max-width:1100px;
       margin:0 auto;
-      padding:14px 18px;
       display:flex;
       justify-content:space-between;
-      align-items:center;
       gap:12px;
-      font-weight:300;
-      color:var(--link);
-      font-size:16px;
-      flex-wrap:wrap;
+      color:var(--muted);
+      font-weight:600;
+      font-size:14px;
+    }
+    @media (max-width: 700px){
+      .footer-inner{ flex-direction:column; align-items:flex-start; }
     }
   </style>
 </head>
@@ -290,16 +217,11 @@
     {{if .ShowNav}}
     <nav>
       <div class="nav-inner">
-        <div class="nav-left">
-          <div class="brand"><span class="dot"></span> Entrega software Go</div>
-          <div class="nav-links">
-            <a href="/">Inicio</a>
-            <a href="/ui/users">Usuarios</a>
-            <a href="/ui/books">Libros</a>
-            <a href="/ui/books/search">Buscar</a>
-          </div>
-        </div>
-        <div class="nav-right">API: /api/*</div>
+        <a href="/">Inicio</a>
+        <a href="/ui/users">Usuarios</a>
+        <a href="/ui/books">Libros</a>
+        <a href="/ui/books/search">Buscar</a>
+        <span class="muted">| API: /api/*</span>
       </div>
     </nav>
     {{end}}
