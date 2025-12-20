@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -31,7 +32,7 @@ func (h *Handler) viewBase(title string, content string, showNav bool) map[strin
 
 	return map[string]any{
 		"Title":       title,
-		"Content":     content, // nombre del template interno (home/users/books/...)
+		"Content":     content, // nombre del template interno (home/users/...)
 		"ShowNav":     showNav,
 		"FooterLeft":  "Juan Francisco Morán Gortaire",
 		"FooterRight": "PROGRAMACION ORIENTADA A OBJETOS - " + tomorrow,
@@ -93,7 +94,7 @@ func (h *Handler) apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 		Name   string      `json:"name"`
 		Email  string      `json:"email"`
 		Role   domain.Role `json:"role"`
-		Active *bool       `json:"active"` // *bool para permitir “no enviar”
+		Active *bool       `json:"active"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
@@ -163,7 +164,7 @@ func (h *Handler) apiGetBook(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, bookToDTO(b))
 }
 
-// GET /api/books/search?q=...&author=...&category=...
+// GET /api/books/search
 func (h *Handler) apiSearchBooks(w http.ResponseWriter, r *http.Request) {
 	f := domain.BookFilter{
 		Q:        r.URL.Query().Get("q"),
@@ -227,9 +228,9 @@ func (h *Handler) apiDeleteBook(w http.ResponseWriter, r *http.Request) {
 // POST /api/access
 func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
 	var in struct {
-		UserID     uint64            `json:"user_id"`
-		BookID     uint64            `json:"book_id"`
-		AccessType domain.AccessType `json:"access_type"`
+		UserID     uint64             `json:"user_id"`
+		BookID     uint64             `json:"book_id"`
+		AccessType domain.AccessType  `json:"access_type"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
@@ -379,7 +380,18 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats, _ := h.books.StatsByBook(r.Context(), id)
+	// Convertimos stats a map[string]int para que el template haga index con strings sin error
+	rawStats, _ := h.books.StatsByBook(r.Context(), id)
+
+	stats := map[string]int{
+		"APERTURA": 0,
+		"LECTURA":  0,
+		"DESCARGA": 0,
+	}
+
+	for k, v := range rawStats {
+		stats[fmt.Sprint(k)] = v
+	}
 
 	data := h.viewBase("Detalle del libro", "book_detail", true)
 	data["Book"] = bookToDTO(b)
@@ -405,6 +417,7 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Volver al detalle del libro (sin refresh automático)
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 

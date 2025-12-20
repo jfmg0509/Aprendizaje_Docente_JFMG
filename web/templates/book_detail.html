@@ -10,26 +10,30 @@
   <p><b>Categoría:</b> {{.Book.Category}}</p>
 
   <p><b>Tags:</b>
-    {{- range $i, $t := .Book.Tags -}}
-      {{- if gt $i 0}}, {{end -}}
-      {{- $t -}}
+    {{- if .Book.Tags -}}
+      {{- range .Book.Tags -}}
+        {{.}}&nbsp;
+      {{- end -}}
+    {{- else -}}
+      -
     {{- end -}}
   </p>
 
   <p><b>Descripción:</b> {{.Book.Description}}</p>
 </div>
 
-<div class="grid" style="margin-top:16px">
+<div class="grid" style="margin-top:18px;">
   <div class="card">
     <h3>Registrar acceso</h3>
-    <form id="accessForm" method="post" action="/ui/access">
+
+    <form method="post" action="/ui/access">
+      <label>User ID</label>
+      <input name="user_id" required />
+
       <input type="hidden" name="book_id" value="{{.Book.ID}}" />
 
-      <label>User ID</label>
-      <input id="userId" name="user_id" type="number" required />
-
       <label>Tipo de acceso</label>
-      <select id="accessType" name="access_type">
+      <select name="access_type">
         {{range .AccessTypes}}
           <option value="{{.}}">{{.}}</option>
         {{end}}
@@ -37,41 +41,15 @@
 
       <button type="submit">Registrar</button>
     </form>
-
-    <p class="muted">
-      Se registra en cola (canal) y se inserta asíncronamente.
-      <br>
-      La página se refresca sola solo cuando NO estás escribiendo.
-    </p>
   </div>
 
   <div class="card">
     <h3>Estadísticas</h3>
     <ul>
-      {{if .Stats}}
-        {{range $k, $v := .Stats}}
-          <li>{{$k}}: {{$v}}</li>
-        {{end}}
-      {{else}}
-        <li>APERTURA: 0</li>
-        <li>LECTURA: 0</li>
-        <li>DESCARGA: 0</li>
-      {{end}}
+      <li>APERTURA: {{index .Stats "APERTURA"}}</li>
+      <li>LECTURA: {{index .Stats "LECTURA"}}</li>
+      <li>DESCARGA: {{index .Stats "DESCARGA"}}</li>
     </ul>
   </div>
 </div>
-
-<script>
-  // Refresco automático SOLO si NO estás en un input/select/textarea
-  function shouldRefresh() {
-    const el = document.activeElement;
-    if (!el) return true;
-    const tag = (el.tagName || "").toLowerCase();
-    return tag !== "input" && tag !== "select" && tag !== "textarea";
-  }
-
-  setInterval(() => {
-    if (shouldRefresh()) location.reload();
-  }, 2000);
-</script>
 {{end}}
