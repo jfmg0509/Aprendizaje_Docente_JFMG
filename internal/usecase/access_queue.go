@@ -36,6 +36,7 @@ func NewAccessQueue(repo AccessRepo, buffer int, workers int) *AccessQueue {
 				if e == nil {
 					continue
 				}
+				// best-effort async
 				_, _ = q.repo.Create(context.Background(), e)
 			}
 		}()
@@ -44,14 +45,28 @@ func NewAccessQueue(repo AccessRepo, buffer int, workers int) *AccessQueue {
 	return q
 }
 
-func (q *AccessQueue) Enqueue(e *domain.AccessEvent) {
-	q.closeMu.Lock()
-	defer q.closeMu.Unlock()
-
-	if q.closed {
-		return
+// ✅ TryEnqueue NO bloquea el UI: si está llena o cerrada -> devuelve false
+func (q *AccessQueue) TryEnqueue(ctx context.Context, e *domain.AccessEvent) bool {
+	if e == nil {
+		return false
 	}
-	q.ch <- e
+
+	// 1) ver si está cerrada (lock corto)
+	q.closeMu.Lock()
+	closed := q.closed
+	q.closeMu.Unlock()
+	if closed {
+		return false
+	}
+
+	// 2) envío no bloqueante
+	select {
+	case q.ch <- e:
+		return true
+	default:
+		// cola llena
+		return false
+	}
 }
 
 func (q *AccessQueue) Close() {

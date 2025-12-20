@@ -146,22 +146,25 @@ func (s *BookService) RecordAccess(ctx context.Context, userID, bookID uint64, t
 		return err
 	}
 
-	// Si hay cola -> async
+	// ✅ Si hay cola: intentamos encolar, pero SI FALLA -> insert directo
 	if s.queue != nil {
-		s.queue.Enqueue(e)
-		return nil
+		if ok := s.queue.TryEnqueue(ctx, e); ok {
+			return nil
+		}
+		// fallback si cola llena/cerrada
 	}
 
-	// Directo a repo
+	// ✅ Directo a repo (garantiza persistencia)
 	_, err = s.access.Create(ctx, e)
 	return err
 }
 
 func (s *BookService) StatsByBook(ctx context.Context, bookID uint64) (map[domain.AccessType]int, error) {
+	// ✅ Siempre consulta al MISMO repo de BD
 	return s.access.StatsByBook(ctx, bookID)
 }
 
-// ===== helpers opcionales (si te sirven en algún punto) =====
+// ===== helpers opcionales =====
 
 func mustJSON(v any) string {
 	b, _ := json.Marshal(v)

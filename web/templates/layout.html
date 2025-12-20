@@ -1,4 +1,4 @@
-{{define "layout.html"}}
+{{define "layout"}}
 <!doctype html>
 <html lang="es">
 <head>
@@ -14,7 +14,6 @@
       --border:#E6EAF2;
       --muted:#6B7280;
     }
-
     html,body{height:100%;}
     body{
       margin:0;
@@ -28,7 +27,6 @@
       display:flex;
       flex-direction:column;
     }
-
     .container{
       width:100%;
       max-width:1050px;
@@ -76,25 +74,53 @@
     h1{
       margin:0 0 18px 0;
       color:var(--title);
-      font-weight:700; /* Calibri Light Bold aproximado */
+      font-weight:700;
       font-size:44px;
       letter-spacing:0.2px;
     }
 
-    .home-links{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+    .card{
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:18px;
+      background:#fff;
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px;
+    }
+    .field{ margin:10px 0; }
+    input, select, textarea{
+      width:100%;
+      padding:10px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      box-sizing:border-box;
+      font-family: inherit;
+      font-size: 15px;
+    }
+    button{
+      padding:10px 16px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      cursor:pointer;
+    }
+    button:hover{ border-color:#C8D2EA; }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
       margin-top:10px;
     }
-    .home-links a{
-      color:var(--link);
-      text-decoration:none;
+    th, td{
+      border-bottom:1px solid var(--border);
+      padding:10px;
+      text-align:left;
       font-weight:300;
-      font-size:18px;
-      width:fit-content;
     }
-    .home-links a:hover{ text-decoration:underline; }
+    th{ font-weight:600; }
 
     footer{
       border-top:1px solid var(--border);
@@ -113,31 +139,25 @@
       font-size:16px;
     }
 
-    .center{
-      flex:1;
+    .home-links{
       display:flex;
       flex-direction:column;
-      justify-content:center;
-      padding-bottom:40px;
+      gap:10px;
+      margin-top:10px;
     }
-
-    /* extras para tus páginas */
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .card{border:1px solid var(--border);border-radius:14px;padding:16px}
-    input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(--border);border-radius:10px}
-    button{padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:#fff;cursor:pointer}
-    button:hover{border-color:#cfd7e6}
-    table{border-collapse:collapse;width:100%}
-    th,td{border:1px solid var(--border);padding:10px;text-align:left}
-    th{background:#f8fafc}
-    .muted{color:var(--muted)}
-    a{color:var(--link)}
+    .home-links a{
+      color:var(--link);
+      text-decoration:none;
+      font-weight:300;
+      font-size:18px;
+      width:fit-content;
+    }
+    .home-links a:hover{ text-decoration:underline; }
   </style>
 </head>
 
 <body>
   <div class="page">
-
     {{if .ShowNav}}
     <nav>
       <div class="nav-inner">
@@ -152,25 +172,7 @@
 
     <div class="container">
       <main>
-        {{/* NO se puede usar: {{template .Content .}}  -> por eso hacemos if/else */}}
-
-        {{if eq .Content "home"}}
-          {{template "home" .}}
-        {{else if eq .Content "users"}}
-          {{template "users" .}}
-        {{else if eq .Content "books"}}
-          {{template "books" .}}
-        {{else if eq .Content "book_search"}}
-          {{template "book_search" .}}
-        {{else if eq .Content "book_detail"}}
-          {{template "book_detail" .}}
-        {{else if eq .Content "error"}}
-          {{template "error" .}}
-        {{else}}
-          <h1>Error</h1>
-          <p class="muted">Content inválido: {{.Content}}</p>
-        {{end}}
-
+        {{template "content" .}}
       </main>
     </div>
 
@@ -180,7 +182,6 @@
         <div>{{.FooterRight}}</div>
       </div>
     </footer>
-
   </div>
 </body>
 </html>
