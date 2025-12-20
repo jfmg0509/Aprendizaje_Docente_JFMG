@@ -10,7 +10,6 @@
   <p><b>Categoría:</b> {{.Book.Category}}</p>
 
   <p><b>Tags:</b>
-    {{- $n := len .Book.Tags -}}
     {{- range $i, $t := .Book.Tags -}}
       {{- if gt $i 0}}, {{end -}}
       {{- $t -}}
@@ -23,14 +22,14 @@
 <div class="grid" style="margin-top:16px">
   <div class="card">
     <h3>Registrar acceso</h3>
-    <form method="post" action="/ui/access">
+    <form id="accessForm" method="post" action="/ui/access">
       <input type="hidden" name="book_id" value="{{.Book.ID}}" />
 
       <label>User ID</label>
-      <input name="user_id" type="number" required />
+      <input id="userId" name="user_id" type="number" required />
 
       <label>Tipo de acceso</label>
-      <select name="access_type">
+      <select id="accessType" name="access_type">
         {{range .AccessTypes}}
           <option value="{{.}}">{{.}}</option>
         {{end}}
@@ -42,14 +41,13 @@
     <p class="muted">
       Se registra en cola (canal) y se inserta asíncronamente.
       <br>
-      La página se refresca sola para ver el conteo actualizado.
+      La página se refresca sola solo cuando NO estás escribiendo.
     </p>
   </div>
 
   <div class="card">
     <h3>Estadísticas</h3>
     <ul>
-      {{/* Si tu Stats viene vacío, mostramos 0 */}}
       {{if .Stats}}
         {{range $k, $v := .Stats}}
           <li>{{$k}}: {{$v}}</li>
@@ -64,7 +62,16 @@
 </div>
 
 <script>
-  // Como el registro es asíncrono (cola), refrescamos para ver stats actualizados.
-  setTimeout(() => location.reload(), 2000);
+  // Refresco automático SOLO si NO estás en un input/select/textarea
+  function shouldRefresh() {
+    const el = document.activeElement;
+    if (!el) return true;
+    const tag = (el.tagName || "").toLowerCase();
+    return tag !== "input" && tag !== "select" && tag !== "textarea";
+  }
+
+  setInterval(() => {
+    if (shouldRefresh()) location.reload();
+  }, 2000);
 </script>
 {{end}}
