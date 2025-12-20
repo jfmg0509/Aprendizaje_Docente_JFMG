@@ -365,21 +365,21 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	statsTyped, _ := h.books.StatsByBook(r.Context(), id)
+	stats, _ := h.books.StatsByBook(r.Context(), id)
 
-	// ✅ Convertimos a map[string]int para templates
-	stats := map[string]int{
+	// convertir stats a map[string]int para que el template use: index .StatsStr "APERTURA"
+	statsStr := map[string]int{
 		"APERTURA": 0,
 		"LECTURA":  0,
 		"DESCARGA": 0,
 	}
-	for k, v := range statsTyped {
-		stats[string(k)] = v
+	for k, v := range stats {
+		statsStr[string(k)] = v
 	}
 
 	data := h.viewBase("Detalle del libro", true)
 	data["Book"] = bookToDTO(b)
-	data["Stats"] = stats
+	data["StatsStr"] = statsStr
 	data["AccessTypes"] = domain.AllowedAccessTypes
 
 	h.r.Render(w, "book_detail.html", data)

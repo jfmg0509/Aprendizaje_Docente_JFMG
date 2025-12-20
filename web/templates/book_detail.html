@@ -1,6 +1,52 @@
-<h3>Estadísticas</h3>
-<ul>
-  <li>APERTURA: {{index .Stats "APERTURA"}}</li>
-  <li>LECTURA: {{index .Stats "LECTURA"}}</li>
-  <li>DESCARGA: {{index .Stats "DESCARGA"}}</li>
-</ul>
+{{define "content"}}
+<h1>Detalle del libro</h1>
+
+<div class="card">
+  <p><b>ID:</b> {{.Book.ID}}</p>
+  <p><b>Título:</b> {{.Book.Title}}</p>
+  <p><b>Autor:</b> {{.Book.Author}}</p>
+  <p><b>Año:</b> {{.Book.Year}}</p>
+  <p><b>ISBN:</b> {{.Book.ISBN}}</p>
+  <p><b>Categoría:</b> {{.Book.Category}}</p>
+  <p><b>Tags:</b>
+    {{range .Book.Tags}}{{.}} {{end}}
+  </p>
+  <p><b>Descripción:</b> {{.Book.Description}}</p>
+</div>
+
+<div class="grid-2" style="margin-top:16px;">
+  <div class="card">
+    <h3>Registrar acceso</h3>
+
+    <form method="POST" action="/ui/access">
+      <input type="hidden" name="book_id" value="{{.Book.ID}}"/>
+
+      <label>User ID</label>
+      <input name="user_id" placeholder="Ej: 1" required />
+
+      <label>Tipo de acceso</label>
+      <select name="access_type" required>
+        {{range .AccessTypes}}
+          <option value="{{.}}">{{.}}</option>
+        {{end}}
+      </select>
+
+      <button type="submit">Registrar</button>
+    </form>
+
+    <p class="mutedText" style="margin-top:12px;">
+      Se registra en cola (channel) y se inserta asíncronamente.
+      Si no ves el conteo al instante, espera 1–2 segundos y refresca manualmente.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Estadísticas</h3>
+    <ul>
+      <li>APERTURA: {{index .StatsStr "APERTURA"}}</li>
+      <li>LECTURA: {{index .StatsStr "LECTURA"}}</li>
+      <li>DESCARGA: {{index .StatsStr "DESCARGA"}}</li>
+    </ul>
+  </div>
+</div>
+{{end}}

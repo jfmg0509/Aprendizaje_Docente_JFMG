@@ -16,7 +16,7 @@ type Renderer struct {
 }
 
 // NewRenderer carga SOLO el layout como base.
-// Luego, por cada Render(page), clona el layout y parsea esa página (que define "content").
+// Luego, por cada Render(pageFile), clona el layout y parsea esa página (que define "content").
 func NewRenderer(templatesDir string) (*Renderer, error) {
 	layoutPath := filepath.Join(templatesDir, "layout.html")
 
