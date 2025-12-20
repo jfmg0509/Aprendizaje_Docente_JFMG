@@ -13,22 +13,18 @@ import (
 	"github.com/jfmg0509/sistema_libros_funcional_go/internal/usecase"
 )
 
-// Handler agrupa dependencias (servicios + renderer).
 type Handler struct {
 	users *usecase.UserService
 	books *usecase.BookService
 	r     *Renderer
 }
 
-// NewHandler crea el handler principal.
 func NewHandler(users *usecase.UserService, books *usecase.BookService, r *Renderer) *Handler {
 	return &Handler{users: users, books: books, r: r}
 }
 
-// viewBase arma datos base para TODAS las páginas.
 func (h *Handler) viewBase(title string, showNav bool) map[string]any {
 	tomorrow := time.Now().Add(24 * time.Hour).Format("02/01/2006")
-
 	return map[string]any{
 		"Title":       title,
 		"ShowNav":     showNav,
@@ -230,29 +226,17 @@ func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]any{"ok": true})
 }
 
-func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
-	bookID := mustUint64(mux.Vars(r)["id"])
-	stats, err := h.books.StatsByBook(r.Context(), bookID)
-	if err != nil {
-		writeErr(w, err)
-		return
-	}
-	writeJSON(w, http.StatusOK, stats)
-}
-
 //
 // ==============================
 // UI (HTML) - /ui/*
 // ==============================
 //
 
-// GET /
 func (h *Handler) uiHome(w http.ResponseWriter, r *http.Request) {
 	data := h.viewBase("Inicio", false)
 	h.r.Render(w, "home.html", data)
 }
 
-// GET /ui/users
 func (h *Handler) uiUsersGET(w http.ResponseWriter, r *http.Request) {
 	list, err := h.users.List(r.Context())
 	if err != nil {
@@ -267,7 +251,6 @@ func (h *Handler) uiUsersGET(w http.ResponseWriter, r *http.Request) {
 	h.r.Render(w, "users.html", data)
 }
 
-// POST /ui/users
 func (h *Handler) uiUsersPOST(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		h.uiError(w, err)
@@ -288,7 +271,6 @@ func (h *Handler) uiUsersPOST(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/ui/users", http.StatusSeeOther)
 }
 
-// GET /ui/books
 func (h *Handler) uiBooksGET(w http.ResponseWriter, r *http.Request) {
 	list, err := h.books.List(r.Context())
 	if err != nil {
@@ -302,7 +284,6 @@ func (h *Handler) uiBooksGET(w http.ResponseWriter, r *http.Request) {
 	h.r.Render(w, "books.html", data)
 }
 
-// POST /ui/books
 func (h *Handler) uiBooksPOST(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		h.uiError(w, err)
@@ -330,7 +311,6 @@ func (h *Handler) uiBooksPOST(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/ui/books", http.StatusSeeOther)
 }
 
-// GET /ui/books/search
 func (h *Handler) uiBookSearchGET(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	author := r.URL.Query().Get("author")
@@ -355,7 +335,6 @@ func (h *Handler) uiBookSearchGET(w http.ResponseWriter, r *http.Request) {
 	h.r.Render(w, "book_search.html", data)
 }
 
-// GET /ui/books/{id}
 func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 	id := mustUint64(mux.Vars(r)["id"])
 
@@ -365,27 +344,14 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats, _ := h.books.StatsByBook(r.Context(), id)
-
-	// convertir stats a map[string]int para que el template use: index .StatsStr "APERTURA"
-	statsStr := map[string]int{
-		"APERTURA": 0,
-		"LECTURA":  0,
-		"DESCARGA": 0,
-	}
-	for k, v := range stats {
-		statsStr[string(k)] = v
-	}
-
 	data := h.viewBase("Detalle del libro", true)
 	data["Book"] = bookToDTO(b)
-	data["StatsStr"] = statsStr
 	data["AccessTypes"] = domain.AllowedAccessTypes
 
+	// ✅ SIN stats
 	h.r.Render(w, "book_detail.html", data)
 }
 
-// POST /ui/access
 func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		h.uiError(w, err)
@@ -401,21 +367,15 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ✅ NO auto-refresh; solo vuelve a la página
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 
-// uiError renderiza error en HTML con layout.
 func (h *Handler) uiError(w http.ResponseWriter, err error) {
 	data := h.viewBase("Error", true)
 	data["Error"] = err.Error()
 	h.r.Render(w, "error.html", data)
 }
-
-//
-// ==============================
-// Helpers
-// ==============================
-//
 
 func mustUint64(s string) uint64 {
 	v, _ := strconv.ParseUint(s, 10, 64)
