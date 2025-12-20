@@ -31,7 +31,7 @@ func (h *Handler) viewBase(title string, content string, showNav bool) map[strin
 
 	return map[string]any{
 		"Title":       title,
-		"Content":     content, // nombre del template interno (home/users/books/book_search/book_detail/error)
+		"Content":     content, // nombre del template interno (home/users/...)
 		"ShowNav":     showNav,
 		"FooterLeft":  "Juan Francisco Morán Gortaire",
 		"FooterRight": "PROGRAMACION ORIENTADA A OBJETOS - " + tomorrow,
@@ -251,7 +251,6 @@ func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
-	// JSON: map keys se vuelven strings, está bien así
 	writeJSON(w, http.StatusOK, stats)
 }
 
@@ -380,21 +379,23 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// stats viene como map[domain.AccessType]int
-	rawStats, _ := h.books.StatsByBook(r.Context(), id)
-
-	// ✅ Convertimos a map[string]int para que el template pueda hacer: {{index .Stats "APERTURA"}}
+	// Trae stats y conviértelo SIEMPRE a map[string]int para el template.
+	rawStats, _ := h.books.StatsByBook(r.Context(), id) // si falla, no rompas la vista
 	stats := map[string]int{}
 	for k, v := range rawStats {
 		stats[string(k)] = v
 	}
 
+	// AccessTypes como []string (para que el index funcione sin error)
+	accessTypes := make([]string, 0, len(domain.AllowedAccessTypes))
+	for _, t := range domain.AllowedAccessTypes {
+		accessTypes = append(accessTypes, string(t))
+	}
+
 	data := h.viewBase("Detalle del libro", "book_detail", true)
 	data["Book"] = bookToDTO(b)
 	data["Stats"] = stats
-
-	// ✅ mantenemos AccessTypes como []string (así coincide con las keys del map[string]int)
-	data["AccessTypes"] = domain.AllowedAccessTypes
+	data["AccessTypes"] = accessTypes
 
 	h.r.Render(w, "layout.html", data)
 }
@@ -408,8 +409,6 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 
 	userID, _ := strconv.ParseUint(r.FormValue("user_id"), 10, 64)
 	bookID, _ := strconv.ParseUint(r.FormValue("book_id"), 10, 64)
-
-	// viene como string desde el select
 	t := domain.AccessType(r.FormValue("access_type"))
 
 	if err := h.books.RecordAccess(r.Context(), userID, bookID, t); err != nil {
@@ -417,7 +416,7 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ✅ NO auto-refresh. Solo recargamos una vez luego del submit
+	// No auto-refresh. Solo redirige para ver el conteo actualizado.
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 
