@@ -7,8 +7,6 @@ import (
 )
 
 // ====== Repos contracts ======
-// (Estas interfaces describen lo que necesita el usecase.
-// Tus repos MySQL/mem deben implementar estos métodos.)
 
 type UserRepo interface {
 	Create(ctx context.Context, u *domain.User) (uint64, error)
@@ -21,7 +19,7 @@ type UserRepo interface {
 
 type BookRepo interface {
 	Create(ctx context.Context, b *domain.Book) (uint64, error)
-	Get(ctx context.Context, id uint64) (*domain.Book, error)
+	GetByID(ctx context.Context, id uint64) (*domain.Book, error)
 	GetByISBN(ctx context.Context, isbn string) (*domain.Book, error)
 	List(ctx context.Context) ([]*domain.Book, error)
 	Search(ctx context.Context, f domain.BookFilter) ([]*domain.Book, error)
@@ -35,7 +33,6 @@ type AccessRepo interface {
 }
 
 // ====== DTO for Update ======
-// Exportado porque lo usa handlers.go como usecase.UpdateBookInput
 type UpdateBookInput struct {
 	Title       *string
 	Author      *string

@@ -7,14 +7,6 @@ import (
 	"github.com/jfmg0509/sistema_libros_funcional_go/internal/domain"
 )
 
-// AccessRepo debe existir en tu proyecto. Si ya existe en otro archivo de usecase,
-// NO lo vuelvas a declarar aquí.
-// Lo usamos como dependencia en la cola.
-//
-// type AccessRepo interface {
-//     Create(ctx context.Context, e *domain.AccessEvent) (uint64, error)
-// }
-
 type AccessQueue struct {
 	repo    AccessRepo
 	ch      chan *domain.AccessEvent
@@ -36,7 +28,6 @@ func NewAccessQueue(repo AccessRepo, buffer int, workers int) *AccessQueue {
 		ch:   make(chan *domain.AccessEvent, buffer),
 	}
 
-	// Workers
 	for i := 0; i < workers; i++ {
 		q.wg.Add(1)
 		go func() {
@@ -45,7 +36,6 @@ func NewAccessQueue(repo AccessRepo, buffer int, workers int) *AccessQueue {
 				if e == nil {
 					continue
 				}
-				// Insert async. Si falla, no reventamos el worker.
 				_, _ = q.repo.Create(context.Background(), e)
 			}
 		}()
@@ -54,7 +44,6 @@ func NewAccessQueue(repo AccessRepo, buffer int, workers int) *AccessQueue {
 	return q
 }
 
-// Enqueue agrega el evento a la cola (si no está cerrada)
 func (q *AccessQueue) Enqueue(e *domain.AccessEvent) {
 	q.closeMu.Lock()
 	defer q.closeMu.Unlock()
@@ -65,7 +54,6 @@ func (q *AccessQueue) Enqueue(e *domain.AccessEvent) {
 	q.ch <- e
 }
 
-// Close cierra la cola y espera a los workers
 func (q *AccessQueue) Close() {
 	q.closeMu.Lock()
 	if q.closed {
