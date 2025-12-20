@@ -1,10 +1,9 @@
-{{define "books"}}
+{{define "content"}}
 <h1 class="page-title">Libros</h1>
 
 <div class="grid">
   <div class="card">
     <h3>Crear libro</h3>
-
     <form method="post" action="/ui/books">
       <label>Título</label><input name="title" required />
       <label>Autor</label><input name="author" required />
@@ -19,7 +18,6 @@
 
   <div class="card">
     <h3>Listado</h3>
-
     <table>
       <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Año</th><th>ISBN</th></tr></thead>
       <tbody>

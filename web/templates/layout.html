@@ -1,10 +1,11 @@
-{{define "layout.html"}}
+{{define "layout"}}
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>{{.Title}}</title>
+
   <style>
     :root{
       --bg:#FFFFFF;
@@ -19,8 +20,8 @@
       margin:0;
       background:var(--bg);
       font-family: Calibri, "Calibri Light", "Segoe UI", Arial, sans-serif;
-      display:flex;
       min-height:100vh;
+      display:flex;
     }
 
     .page{
@@ -46,7 +47,7 @@
     .nav a{
       color:var(--link);
       text-decoration:none;
-      font-weight:300; /* Calibri Light */
+      font-weight:300;
       font-size:16px;
     }
     .nav a:hover{ text-decoration:underline; }
@@ -61,17 +62,13 @@
       margin:0 0 18px 0;
       color:var(--title);
       font-size:42px;
-      font-weight:700; /* "Light Bold" aproximado */
+      font-weight:700; /* Calibri Light Bold (aprox) */
       letter-spacing:.2px;
     }
-    h2,h3{
-      font-weight:700;
-      margin:0 0 12px 0;
-    }
 
-    /* LAYOUT */
     main{ flex:1; }
 
+    /* COMPONENTS */
     .grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -116,14 +113,7 @@
     a{color:var(--link)}
     .muted{color:var(--muted)}
 
-    /* HOME */
-    .home-wrap{
-      display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      gap:14px;
-      margin-top:8px;
-    }
+    /* HOME LINKS */
     .home-links{
       display:flex;
       flex-direction:column;
@@ -146,7 +136,7 @@
       border-top:1px solid var(--border);
       padding-top:14px;
       margin-top:24px;
-      font-weight:300; /* Calibri Light */
+      font-weight:300;
       color:var(--link);
       font-size:15px;
     }
@@ -167,7 +157,7 @@
     {{end}}
 
     <main>
-      {{template .Content .}}
+      {{template "content" .}}
     </main>
 
     <footer class="footer">
