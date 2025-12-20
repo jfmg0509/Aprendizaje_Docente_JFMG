@@ -8,7 +8,15 @@
   <p><b>Año:</b> {{.Book.Year}}</p>
   <p><b>ISBN:</b> {{.Book.ISBN}}</p>
   <p><b>Categoría:</b> {{.Book.Category}}</p>
-  <p><b>Tags:</b> {{range .Book.Tags}}{{.}} {{end}}</p>
+
+  <p><b>Tags:</b>
+    {{- $n := len .Book.Tags -}}
+    {{- range $i, $t := .Book.Tags -}}
+      {{- if gt $i 0}}, {{end -}}
+      {{- $t -}}
+    {{- end -}}
+  </p>
+
   <p><b>Descripción:</b> {{.Book.Description}}</p>
 </div>
 
@@ -30,18 +38,23 @@
 
       <button type="submit">Registrar</button>
     </form>
-    <p class="muted">Se registra en cola (canal) y se inserta asíncronamente.</p>
+
+    <p class="muted">
+      Se registra en cola (canal) y se inserta asíncronamente.
+      <br>
+      La página se refresca sola para ver el conteo actualizado.
+    </p>
   </div>
 
   <div class="card">
     <h3>Estadísticas</h3>
     <ul>
-      {{/* .Stats es map[domain.AccessType]int, así que iteramos */}}
-      {{range $k, $v := .Stats}}
-        <li>{{$k}}: {{$v}}</li>
-      {{end}}
-      {{/* Si no hay stats todavía, mostramos ceros */}}
-      {{if not .Stats}}
+      {{/* Si tu Stats viene vacío, mostramos 0 */}}
+      {{if .Stats}}
+        {{range $k, $v := .Stats}}
+          <li>{{$k}}: {{$v}}</li>
+        {{end}}
+      {{else}}
         <li>APERTURA: 0</li>
         <li>LECTURA: 0</li>
         <li>DESCARGA: 0</li>
@@ -49,4 +62,9 @@
     </ul>
   </div>
 </div>
+
+<script>
+  // Como el registro es asíncrono (cola), refrescamos para ver stats actualizados.
+  setTimeout(() => location.reload(), 2000);
+</script>
 {{end}}
