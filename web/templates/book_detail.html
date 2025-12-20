@@ -1,55 +1,63 @@
 {{define "book_detail"}}
 <h1>Detalle del libro</h1>
 
-<div class="card">
-  <p><b>ID:</b> {{.Book.ID}}</p>
-  <p><b>Título:</b> {{.Book.Title}}</p>
-  <p><b>Autor:</b> {{.Book.Author}}</p>
-  <p><b>Año:</b> {{.Book.Year}}</p>
-  <p><b>ISBN:</b> {{.Book.ISBN}}</p>
-  <p><b>Categoría:</b> {{.Book.Category}}</p>
-
-  <p><b>Tags:</b>
-    {{- if .Book.Tags -}}
-      {{- range .Book.Tags -}}
-        {{.}}&nbsp;
-      {{- end -}}
-    {{- else -}}
-      -
-    {{- end -}}
-  </p>
-
-  <p><b>Descripción:</b> {{.Book.Description}}</p>
-</div>
-
-<div class="grid" style="margin-top:18px;">
-  <div class="card">
-    <h3>Registrar acceso</h3>
-
-    <form method="post" action="/ui/access">
-      <label>User ID</label>
-      <input name="user_id" required />
-
-      <input type="hidden" name="book_id" value="{{.Book.ID}}" />
-
-      <label>Tipo de acceso</label>
-      <select name="access_type">
-        {{range .AccessTypes}}
-          <option value="{{.}}">{{.}}</option>
-        {{end}}
-      </select>
-
-      <button type="submit">Registrar</button>
-    </form>
+<div class="grid" style="display:grid; grid-template-columns: 1fr; gap:18px;">
+  <div class="card" style="border:1px solid #E6EAF2; border-radius:14px; padding:18px;">
+    <p><b>ID:</b> {{.Book.ID}}</p>
+    <p><b>Título:</b> {{.Book.Title}}</p>
+    <p><b>Autor:</b> {{.Book.Author}}</p>
+    <p><b>Año:</b> {{.Book.Year}}</p>
+    <p><b>ISBN:</b> {{.Book.ISBN}}</p>
+    <p><b>Categoría:</b> {{.Book.Category}}</p>
+    <p><b>Tags:</b>
+      {{range .Book.Tags}}{{.}} {{end}}
+    </p>
+    <p><b>Descripción:</b> {{.Book.Description}}</p>
   </div>
 
-  <div class="card">
-    <h3>Estadísticas</h3>
-    <ul>
-      <li>APERTURA: {{index .Stats "APERTURA"}}</li>
-      <li>LECTURA: {{index .Stats "LECTURA"}}</li>
-      <li>DESCARGA: {{index .Stats "DESCARGA"}}</li>
-    </ul>
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px;">
+    <!-- Registrar acceso -->
+    <div class="card" style="border:1px solid #E6EAF2; border-radius:14px; padding:18px;">
+      <h3 style="margin-top:0;">Registrar acceso</h3>
+
+      <form method="post" action="/ui/access">
+        <input type="hidden" name="book_id" value="{{.Book.ID}}" />
+
+        <label style="display:block; margin:10px 0 6px;">User ID</label>
+        <input name="user_id" style="width:100%; padding:10px; border:1px solid #E6EAF2; border-radius:10px;" required />
+
+        <label style="display:block; margin:12px 0 6px;">Tipo de acceso</label>
+        <select name="access_type" style="width:100%; padding:10px; border:1px solid #E6EAF2; border-radius:10px;">
+          {{range .AccessTypes}}
+            <option value="{{.}}">{{.}}</option>
+          {{end}}
+        </select>
+
+        <button type="submit" style="margin-top:12px; padding:10px 14px; border:1px solid #E6EAF2; border-radius:10px; background:#fff; cursor:pointer;">
+          Registrar
+        </button>
+      </form>
+
+      <p style="margin-top:12px; color:#6B7280;">
+        Se registra en cola (channel) y se inserta asíncronamente.
+        Si no ves el conteo al instante, espera 1–2 segundos y refresca manualmente.
+      </p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="card" style="border:1px solid #E6EAF2; border-radius:14px; padding:18px;">
+      <h3 style="margin-top:0;">Estadísticas</h3>
+
+      <ul style="margin:0; padding-left:18px;">
+        {{range .AccessTypes}}
+          <li>{{.}}: {{index $.Stats .}}</li>
+        {{end}}
+      </ul>
+
+      <div style="margin-top:12px;">
+        <a href="/ui/books/{{.Book.ID}}" style="color:#2D73D6; text-decoration:none;">Actualizar estadísticas</a>
+      </div>
+    </div>
   </div>
 </div>
 {{end}}

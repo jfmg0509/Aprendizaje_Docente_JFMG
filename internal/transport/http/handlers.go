@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,7 +31,7 @@ func (h *Handler) viewBase(title string, content string, showNav bool) map[strin
 
 	return map[string]any{
 		"Title":       title,
-		"Content":     content, // nombre del template interno (home/users/...)
+		"Content":     content, // nombre del template interno (home/users/books/book_search/book_detail/error)
 		"ShowNav":     showNav,
 		"FooterLeft":  "Juan Francisco Morán Gortaire",
 		"FooterRight": "PROGRAMACION ORIENTADA A OBJETOS - " + tomorrow,
@@ -228,9 +227,9 @@ func (h *Handler) apiDeleteBook(w http.ResponseWriter, r *http.Request) {
 // POST /api/access
 func (h *Handler) apiRecordAccess(w http.ResponseWriter, r *http.Request) {
 	var in struct {
-		UserID     uint64             `json:"user_id"`
-		BookID     uint64             `json:"book_id"`
-		AccessType domain.AccessType  `json:"access_type"`
+		UserID     uint64            `json:"user_id"`
+		BookID     uint64            `json:"book_id"`
+		AccessType domain.AccessType `json:"access_type"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeErr(w, err)
@@ -252,6 +251,7 @@ func (h *Handler) apiStatsByBook(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
+	// JSON: map keys se vuelven strings, está bien así
 	writeJSON(w, http.StatusOK, stats)
 }
 
@@ -380,22 +380,20 @@ func (h *Handler) uiBookDetailGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convertimos stats a map[string]int para que el template haga index con strings sin error
+	// stats viene como map[domain.AccessType]int
 	rawStats, _ := h.books.StatsByBook(r.Context(), id)
 
-	stats := map[string]int{
-		"APERTURA": 0,
-		"LECTURA":  0,
-		"DESCARGA": 0,
-	}
-
+	// ✅ Convertimos a map[string]int para que el template pueda hacer: {{index .Stats "APERTURA"}}
+	stats := map[string]int{}
 	for k, v := range rawStats {
-		stats[fmt.Sprint(k)] = v
+		stats[string(k)] = v
 	}
 
 	data := h.viewBase("Detalle del libro", "book_detail", true)
 	data["Book"] = bookToDTO(b)
 	data["Stats"] = stats
+
+	// ✅ mantenemos AccessTypes como []string (así coincide con las keys del map[string]int)
 	data["AccessTypes"] = domain.AllowedAccessTypes
 
 	h.r.Render(w, "layout.html", data)
@@ -410,6 +408,8 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 
 	userID, _ := strconv.ParseUint(r.FormValue("user_id"), 10, 64)
 	bookID, _ := strconv.ParseUint(r.FormValue("book_id"), 10, 64)
+
+	// viene como string desde el select
 	t := domain.AccessType(r.FormValue("access_type"))
 
 	if err := h.books.RecordAccess(r.Context(), userID, bookID, t); err != nil {
@@ -417,7 +417,7 @@ func (h *Handler) uiAccessPOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Volver al detalle del libro (sin refresh automático)
+	// ✅ NO auto-refresh. Solo recargamos una vez luego del submit
 	http.Redirect(w, r, "/ui/books/"+strconv.FormatUint(bookID, 10), http.StatusSeeOther)
 }
 
