@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-
   <title>{{.Title}}</title>
 
   <style>
@@ -24,7 +23,6 @@
       color:#111827;
     }
 
-    /* Layout general */
     .page{
       min-height:100vh;
       display:flex;
@@ -42,7 +40,6 @@
       flex-direction:column;
     }
 
-    /* NAV (solo cuando ShowNav=true) */
     nav{
       padding:16px 24px;
       border-bottom:1px solid var(--border);
@@ -54,12 +51,11 @@
       display:flex;
       gap:18px;
       align-items:center;
-      padding:0 0;
     }
     nav a{
       color:var(--link);
       text-decoration:none;
-      font-weight:300; /* Calibri Light */
+      font-weight:300;
       font-size:16px;
     }
     nav a:hover{ text-decoration:underline; }
@@ -69,7 +65,6 @@
       margin-left:6px;
     }
 
-    /* Contenido */
     main{
       flex:1;
       display:flex;
@@ -78,16 +73,14 @@
       padding-top:24px;
     }
 
-    /* Título (HOME y páginas) */
     h1{
       margin:0 0 18px 0;
       color:var(--title);
-      font-weight:700; /* "Calibri Light Bold" aproximado */
+      font-weight:700; /* Calibri Light Bold aproximado */
       font-size:44px;
       letter-spacing:0.2px;
     }
 
-    /* Links estilo HOME */
     .home-links{
       display:flex;
       flex-direction:column;
@@ -103,7 +96,6 @@
     }
     .home-links a:hover{ text-decoration:underline; }
 
-    /* Footer */
     footer{
       border-top:1px solid var(--border);
       padding:16px 24px;
@@ -121,7 +113,6 @@
       font-size:16px;
     }
 
-    /* Utilidades */
     .center{
       flex:1;
       display:flex;
@@ -129,6 +120,18 @@
       justify-content:center;
       padding-bottom:40px;
     }
+
+    /* extras para tus páginas */
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .card{border:1px solid var(--border);border-radius:14px;padding:16px}
+    input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(--border);border-radius:10px}
+    button{padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:#fff;cursor:pointer}
+    button:hover{border-color:#cfd7e6}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid var(--border);padding:10px;text-align:left}
+    th{background:#f8fafc}
+    .muted{color:var(--muted)}
+    a{color:var(--link)}
   </style>
 </head>
 
@@ -149,7 +152,25 @@
 
     <div class="container">
       <main>
-        {{template .Content .}}
+        {{/* NO se puede usar: {{template .Content .}}  -> por eso hacemos if/else */}}
+
+        {{if eq .Content "home"}}
+          {{template "home" .}}
+        {{else if eq .Content "users"}}
+          {{template "users" .}}
+        {{else if eq .Content "books"}}
+          {{template "books" .}}
+        {{else if eq .Content "book_search"}}
+          {{template "book_search" .}}
+        {{else if eq .Content "book_detail"}}
+          {{template "book_detail" .}}
+        {{else if eq .Content "error"}}
+          {{template "error" .}}
+        {{else}}
+          <h1>Error</h1>
+          <p class="muted">Content inválido: {{.Content}}</p>
+        {{end}}
+
       </main>
     </div>
 
